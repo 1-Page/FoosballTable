@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+  <ul class=teams>
+  {% for team in teams %}
+    <li><h2><a href={{ url_for('teams_name_get', team_id=team.team_id) }}>{{ team.team_id|safe }}</a></h2><br/>
+    Defense: {{ team.defense_player.name }} <br/>
+    Attack: {{ team.attack_player.name }} <br/>
+  {% else %}
+    <li><em>Unbelievable.  No teams yet</em>
+  {% endfor %}
+  </ul>
+
+{% endblock %}

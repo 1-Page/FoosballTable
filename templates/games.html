@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block body %}
+
+    <form action="{{ url_for('games_get_post') }}" method=post class=add-entry>
+      <dl> Left Team
+        <dt>Defense:
+        <dd><select name="left_defense_player_name">
+                {% for player in players %}
+                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                {% endfor %}
+          </select>
+        <dt>Attack:
+        <dd><select name="left_attack_player_name">
+                {% for player in players %}
+                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                {% endfor %}
+          </select>
+      </dl>
+      <dl> Right Team
+        <dt>Attack:
+        <dd><select name="right_attack_player_name">
+                {% for player in players %}
+                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                {% endfor %}
+          </select>
+        <dt>Defense:
+        <dd><select name="right_defense_player_name">
+                {% for player in players %}
+                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                {% endfor %}
+          </select>
+      </dl>
+        <dd><input type=submit value="New game">
+    </form>
+
+  <ul class=games>
+  {% for game in games %}
+    <li><h2><a href={{ url_for('games_get', timestamp=game.timestamp) }}>{{ game.timestamp }}</a></h2> <br/>
+        {{  game.summary() }}
+  {% else %}
+    <li><em>Unbelievable.  No games yet, please add</em>
+  {% endfor %}
+  </ul>
+
+
+{% endblock %}

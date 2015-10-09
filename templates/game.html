@@ -1,0 +1,69 @@
+{% extends "autoreload.html" %}
+{% block body %}
+
+  <ul class=game>
+    <li><h2>{{ game.timestamp }}</h2> <br/>
+        {{  game.summary() }}
+  </ul>
+
+    <h1>Left: {{ game.score_left }}</h1> - <h1>Right: {{  game.score_right }}</h1>
+
+    <h2>Time left: {{ game.time_left_string() }}</h2> <br/>
+
+    {% if not game.ended %}
+    <h1><a href="{{ url_for('end_game', timestamp=game.timestamp)  }}">End Game</a></h1> <br/> <br/>
+    {% endif %}
+
+    <hr/>
+    <h1>New game</h1> <br/>
+    <form action="{{ url_for('games_get_post') }}" method=post class=add-entry>
+      <dl> Left Team
+        <dt>Defense:
+        <dd><select name="left_defense_player_name">
+                {% for player in players %}
+                    {% if player.name == game.team_left.defense_player.name %}
+                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                    {% else %}
+                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                    {% endif %}
+                {% endfor %}
+          </select>
+        <dt>Attack:
+        <dd><select name="left_attack_player_name">
+                {% for player in players %}
+                    {% if player.name == game.team_left.attack_player.name %}
+                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                    {% else %}
+                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                    {% endif %}
+                {% endfor %}
+          </select>
+      </dl>
+      <dl> Right Team
+        <dt>Attack:
+        <dd><select name="right_attack_player_name">
+                {% for player in players %}
+                    {% if player.name == game.team_right.attack_player.name %}
+                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                    {% else %}
+                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                    {% endif %}
+                {% endfor %}
+          </select>
+        <dt>Defense:
+        <dd><select name="right_defense_player_name">
+                {% for player in players %}
+                    {% if player.name == game.team_right.defense_player.name %}
+                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                    {% else %}
+                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                    {% endif %}
+
+                {% endfor %}
+          </select>
+      </dl>
+        <dd><input type=submit value="New game">
+    </form>
+
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+  <ul class=players>
+  {% for player in players %}
+    <li><h2><a href={{ url_for('players_name_get_delete_put', name=player.name) }}>{{ player.name|safe }}</a></h2>
+  {% else %}
+    <li><em>Unbelievable.  No players, please add</em>
+  {% endfor %}
+  </ul>
+
+    <form action="{{ url_for('players_get_post') }}" method=post class=add-entry>
+      <dl>
+        <dt>Player Name:
+        <dd><input type=text size=30 name=name>
+        <dt>Photo:
+        <dd><input type=text size=30 name=photo disabled="disabled">
+        <dd><input type=submit value=Add>
+      </dl>
+    </form>
+
+{% endblock %}
