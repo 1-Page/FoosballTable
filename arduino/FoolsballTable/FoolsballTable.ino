@@ -1,5 +1,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
+#include "RestClient.h"
+
 
 #define LEFT_LIGHT_SENSOR A0
 #define RIGHT_LIGHT_SENSOR A2
@@ -12,7 +14,6 @@
 #define CALIBRATION_REPEATS 100
 #define CALIBRATION_DELAY 10
 #define CALIBRATE_EVERY_MSECONDS 1000*60*2 //2 minutes
-//#define CALIBRATE_EVERY_MSECONDS 1000*10 //2 minutes
 
 #define BALL_REFLECTION_FACTOR 50
 
@@ -26,16 +27,16 @@
 
 byte mac[] = { 0xF0, 0x00, 0x55, 0xB0, 0x00, 0x11 };
 IPAddress ip(10, 4, 4, 200);
-EthernetClient client;
-
-//IPAddress server(10,4,4,161);
-char serverName[] = "10.4.4.161";
-IPAddress server(10,4,4,94);
-//char serverName[] = "riley";
+char serverName[] = "riley";
 int serverPort = 7008;
-char pageNameLeft[] = "/goal/left";
-char pageNameRight[] = "/goal/right";
-char pageNameIsGameOn[] = "/is_game_on";
+const char pageNameLeft[] = "/goal/left";
+const char pageNameRight[] = "/goal/right";
+const char pageNameIsGameOn[] = "/is_game_on";
+
+RestClient client = RestClient(serverName, serverPort);
+
+
+
 
 
 int leftCurrentLightLevel; 
@@ -82,21 +83,16 @@ void setup()
 {
   Serial.begin(38400);
 
-  
-  Serial.println("Starting Ethernet");
-  // start the Ethernet connection:
+  Serial.println("Connecting to network");
+  client.dhcp();
+/*
+  // Can still fall back to manual config:
+  byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+  //the IP address for the shield:
+  byte ip[] = { 192, 168, 2, 11 };
+  Ethernet.begin(mac,ip);
+*/
 
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // no point in carrying on, so do nothing forevermore:
-    // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip);
-  }
-
-  Serial.print("Got IP: ");
-  Serial.println(Ethernet.localIP());
-
-  
   pinMode(BOARD_LIGHT, OUTPUT);
   pinMode(LEFT_LASER_LIGHT, OUTPUT);
   
@@ -110,124 +106,35 @@ void setup()
 }
 
 void send_goal(int side) {
-  char params[] = "Nothing";
-  
-  byte result;
+  String response = "";
+  int statusCode;
   
   if (side == LEFT_SIDE) {
-    result = postPage(serverName,serverPort,pageNameLeft,params); 
+    statusCode = client.post(pageNameLeft, "", &response);
   } else {
-    result = postPage(serverName,serverPort,pageNameRight,params); 
+    statusCode = client.post(pageNameRight, "", &response);
   }
+
+  Serial.print("Status code from server: ");
+  Serial.println(statusCode);
+  Serial.print("Response body from server: ");
+  Serial.println(response);
   
-  if (!result) {
-    Serial.print(F("Fail "));
-  } else {
-    Serial.print(F("Pass "));
-  }
 }
 
 
-byte postPage(char* domainBuffer,int thisPort,char* page,char* thisData)
-{
-  int inChar;
-  char outBuf[64];
 
-  Serial.print(F("Posting goal..."));
-
-  if(client.connect(domainBuffer,thisPort) == 1)
-  {
-    Serial.println(F("connected"));
-
-    // send the header
-    sprintf(outBuf,"POST %s HTTP/1.1",page);
-    client.println(outBuf);    
-    sprintf(outBuf,"Host: %s",domainBuffer);
-
-    client.println("User-Agent: FoosballTable/1.0");
-    client.println("Connection: close");
-    client.println("Content-Type: text/plain");
-    client.print("Content-Length: ");
-    client.println(strlen(thisData));
-    client.print(thisData);
-    client.stop();
-    return 1;
-  } 
-  else
-  {
-    Serial.println(F("failed"));
-    return 0;
-  }
-}
-
-
-String getPage(IPAddress ipBuf,int thisPort, char *page)
-{
-  int inChar;
-  char outBuf[128];
-  String response = "";
-
-  Serial.print(F("Check Online..."));
-
-  if(client.connect(ipBuf,thisPort) == 1)
-  {
-    Serial.println(F("connected"));
-
-    sprintf(outBuf,"GET %s HTTP/1.1",page);
-    client.println(outBuf);
-    sprintf(outBuf,"Host: %s",serverName);
-    client.println(outBuf);
-    client.println(F("Connection: close\r\n"));
-  } 
-  else
-  {
-    Serial.println(F("failed"));
-    return response;
-  }
-
-  // connectLoop controls the hardware fail timeout
-  int connectLoop = 0;      
-
-  while(client.connected())
-  {
-    while(client.available())
-    {
-      inChar = client.read();
-      response.concat(inChar);
-      Serial.write(inChar);
-      // set connectLoop to zero if a packet arrives
-      connectLoop = 0;
-    }
-
-    connectLoop++;
-
-    // if more than 10000 milliseconds since the last packet
-    if(connectLoop > 10000)
-    {
-      // then close the connection from this end.
-      Serial.println();
-      Serial.println(F("Timeout"));
-      client.stop();
-    }
-    // this is a delay for the connectLoop timing
-    delay(1);
-  }
-
-  Serial.println();
-
-  Serial.println(F("disconnecting."));
-  // close client end
-  client.stop();
-
-  return response;
-}
 
 
 void check_game_on() {
-  return;
-  String response("");
-  // Check server for "/is_game_on" ==> "Yes", or "No"  
-  response = getPage(server,serverPort,pageNameIsGameOn);
+
+  String response = "";
+  int statusCode = client.get(pageNameIsGameOn, &response);
+  Serial.print("Status code from server: ");
+  Serial.println(statusCode);
+  Serial.print("Response body from server: ");
+  Serial.println(response);
+
   if (response == String("Yes")) {
     Serial.println(F("LASER ON."));
     all_laser_control(HIGH);
