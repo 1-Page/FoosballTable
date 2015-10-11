@@ -7,6 +7,9 @@ class Player(object):
         self.player_id = player_id
         self.name = name
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 class Team(object):
     def __init__(self, team_id, defense_player, attack_player):
         self.team_id = team_id
@@ -14,7 +17,11 @@ class Team(object):
         self.attack_player = attack_player
 
     def summary(self):
-        return "{defense}+{attack}".format(defense=self.defense_player.name, attack=self.attack_player.name)
+        if self.defense_player == self.attack_player:
+            return "{defense}".format(defense=self.defense_player.name)
+        else:
+            return "{defense}+{attack}".format(defense=self.defense_player.name, attack=self.attack_player.name)
+
 
 class Game(object):
     def __init__(self, game_id, timestamp, team_left, team_right, score_left = 0, score_right = 0, ended = 0):
