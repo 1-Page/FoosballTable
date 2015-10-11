@@ -194,9 +194,13 @@ class AFL_DB:
         game_exists = cur.fetchone()
         if game_exists:
             game_id, _, team_left_id, team_right_id, score_left, score_right, ended = game_exists
-            return Game(game_id=game_id, timestamp=timestamp,
+            game = Game(game_id=game_id, timestamp=timestamp,
                         team_left=self.get_team(team_left_id), team_right=self.get_team(team_right_id),
                         score_left=score_left, score_right=score_right, ended=ended)
+
+            if game.game_should_end():
+                self.end_game(game)
+            return game
         else:
             return None
 
@@ -240,10 +244,9 @@ class AFL_DB:
                     "FROM games WHERE ended=:ended",dict(ended=0))
         open_games = list(cur.fetchall())
         for (game_id, timestamp, _, _, score_left, score_right, ended) in open_games:
-            if Game(game_id=None, team_left=None, team_right=None, timestamp=timestamp, score_left=score_left, score_right=score_right, ended=ended).game_should_end():
-                cur.execute("UPDATE games SET ended = :ended WHERE game_id = :game_id",
-                            dict(game_id=game_id, ended=1))
-                self.con.commit()
+            game = Game(game_id=game_id, team_left=None, team_right=None, timestamp=timestamp, score_left=score_left, score_right=score_right, ended=ended)
+            if game.game_should_end():
+                self.end_game(game)
 
     def get_open_game(self):
         self._end_games_that_shouldnt_be_open()
@@ -277,10 +280,13 @@ class AFL_DB:
         self.con.commit()
 
         if (open_game.game_should_end()):
-            cur.execute("UPDATE games SET ended = :ended WHERE game_id = :game_id",
-                        dict(game_id=open_game.game_id, ended=1))
-            self.con.commit()
+            self.end_game(open_game)
 
+    def end_game(self, game):
+        cur = self.con.cursor()
+        cur.execute("UPDATE games SET ended = :ended WHERE game_id = :game_id",
+                    dict(game_id=game.game_id, ended=1))
+        self.con.commit()
 
 
 

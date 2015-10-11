@@ -1,5 +1,8 @@
-{% extends "layout.html" %}
-{% block body %}
+{% extends "base.html" %}
+{% import "bootstrap/utils.html" as utils %}
+
+{% block content %}
+
   <ul class=teams>
   {% for team in teams %}
     <li><h2><a href={{ url_for('teams_name_get', team_id=team.team_id) }}>{{ team.team_id|safe }}</a></h2><br/>

@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask_bootstrap import Bootstrap
 
 from model import Player, Team, Game, AFL_DB
 import config
 import tools
 
 app = Flask(__name__)
+Bootstrap(app)
 
 db = AFL_DB(database=config.DBNAME)
 

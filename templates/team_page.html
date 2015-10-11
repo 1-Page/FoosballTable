@@ -1,5 +1,7 @@
-{% extends "layout.html" %}
-{% block body %}
+{% extends "base.html" %}
+{% import "bootstrap/utils.html" as utils %}
+
+{% block content %}
 
     <h2>{{ team.team_id|safe }}</h2> <br/>
     Defense: {{ team.defense_player.name }} <br/>

@@ -1,0 +1,36 @@
+{%- extends "bootstrap/base.html" %}
+{% block title %}1-Page Foosball Table{% endblock %}
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block head %}
+    {{super()}}
+    {{fixes.ie8()}}
+{%- endblock %}
+
+{% block styles -%}
+    {{super()}}  {# do not forget to call super or Bootstrap's own stylesheets
+                    will disappear! #}
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='style.css')}}">
+{% endblock %}
+
+{# Finally, round things out with navigation #}
+{% block navbar %}
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="http://www.1-page.com">
+            <img alt="Brand" class="container img-responsive" src="{{url_for('static', filename='img/1-page-f.png')}}">
+          </a>
+        </div>
+
+        <p class="navbar-text"><a href="{{ url_for('games_get_post') }}">Games</a></p>
+        <p class="navbar-text"><a href="{{ url_for('players_get_post') }}">Players</a></p>
+        <p class="navbar-text"><a href="{{ url_for('teams_get') }}">Teams</a></p>
+
+      </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+{% endblock %}

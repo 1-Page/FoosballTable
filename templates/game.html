@@ -1,69 +1,130 @@
 {% extends "autoreload.html" %}
-{% block body %}
 
-  <ul class=game>
-    <li><h2>{{ game.timestamp }}</h2> <br/>
-        {{  game.summary() }}
-  </ul>
+{% block content %}
 
-    <h1>Left: {{ game.score_left }}</h1> - <h1>Right: {{  game.score_right }}</h1>
+    <div class="container game">
+        <div class="container h1">
 
-    <h2>Time left: {{ game.time_left_string() }}</h2> <br/>
+            <div class="col-xs-2 text-left">
+                {{ game.team_left.defense_player.name }}<br/>
+                {{ game.team_left.attack_player.name }}
+            </div>
 
-    {% if not game.ended %}
-    <h1><a href="{{ url_for('end_game', timestamp=game.timestamp)  }}">End Game</a></h1> <br/> <br/>
-    {% endif %}
+            <div class="col-xs-8 text-center score">
+                {{ game.score_left }} x {{ game.score_right }}
+            </div>
+
+            <div class="col-xs-2 text-right">
+                {{ game.team_right.defense_player.name }}<br/>
+                {{ game.team_right.attack_player.name }}
+            </div>
+        </div>
+
+        {% if not game.ended %}
+        <div class="container text-center h1">
+            <div class="time">
+                Time left: {{ game.time_left_string() }}
+            </div>
+
+
+            <div class="container btn btn-lg btn-success center-block end_game_btn">
+                <a href="{{ url_for('end_game', timestamp=game.timestamp)  }}">End Game</a>
+            </div>
+
+        </div>
+        {% else %}
+          <div class="container text-center h3">
+          <hr/>
+            <span class="timestamp">
+                <a href={{ url_for('games_get', timestamp=game.timestamp) }}>
+                    {{ game.timestamp }}
+                </a>
+            </span>
+            <span class="summary">
+                 {{  game.summary() }}
+            </span>
+          </div>
+        {% endif %}
+
+    </div>
+
 
     <hr/>
-    <h1>New game</h1> <br/>
-    <form action="{{ url_for('games_get_post') }}" method=post class=add-entry>
-      <dl> Left Team
-        <dt>Defense:
-        <dd><select name="left_defense_player_name">
-                {% for player in players %}
-                    {% if player.name == game.team_left.defense_player.name %}
-                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                    {% else %}
-                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                    {% endif %}
-                {% endfor %}
-          </select>
-        <dt>Attack:
-        <dd><select name="left_attack_player_name">
-                {% for player in players %}
-                    {% if player.name == game.team_left.attack_player.name %}
-                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                    {% else %}
-                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                    {% endif %}
-                {% endfor %}
-          </select>
-      </dl>
-      <dl> Right Team
-        <dt>Attack:
-        <dd><select name="right_attack_player_name">
-                {% for player in players %}
-                    {% if player.name == game.team_right.attack_player.name %}
-                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                    {% else %}
-                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                    {% endif %}
-                {% endfor %}
-          </select>
-        <dt>Defense:
-        <dd><select name="right_defense_player_name">
-                {% for player in players %}
-                    {% if player.name == game.team_right.defense_player.name %}
-                        <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                    {% else %}
-                        <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                    {% endif %}
 
-                {% endfor %}
-          </select>
-      </dl>
-        <dd><input type=submit value="New game">
+    <div class="container">
+
+    <div class="h2 text-center">Start a new game</div>
+
+    <form action="{{ url_for('games_get_post') }}" method=post class="container">
+        <div class="col-xs-5 col-xs-offset-1">
+            <label for="leftTeam" class="h2">Left Team</label>
+            <div class="form-group" id="leftTeam">
+                <label for="leftDefense">Defense</label>
+                <select name="left_defense_player_name" id="leftDefense" class="form-control">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_left.defense_player.name) %}
+                                <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                  </select>
+                <label for="leftAttack">Attack</label>
+                <select name="left_attack_player_name" id="leftAttack" class="form-control">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_left.attack_player.name) %}
+                                <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-xs-5">
+            <label for="rightTeam" class="h2">Right Team</label>
+            <div class="form-group" id="rightTeam">
+                <label for="rightAttack">Attack</label>
+                <select name="right_attack_player_name" id="rightAttack" class="form-control">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_right.attack_player.name) %}
+                                <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+
+                        {% endfor %}
+                </select>
+                <label for="rightDefense">Defense</label>
+                <select name="right_defense_player_name" id="rightDefense" class="form-control">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_right.defense_player.name) %}
+                                <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                  </select>
+            </div>
+        </div>
+        <input type=submit value="New game" class="btn btn-lg center-block btn-success">
     </form>
+
+    </div>
+
+    <div class="container">
+
+    </div>
 
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
+

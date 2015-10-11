@@ -1,46 +1,87 @@
-{% extends "layout.html" %}
-{% block body %}
+{% extends "base.html" %}
+{% import "bootstrap/utils.html" as utils %}
 
-    <form action="{{ url_for('games_get_post') }}" method=post class=add-entry>
-      <dl> Left Team
-        <dt>Defense:
-        <dd><select name="left_defense_player_name">
-                {% for player in players %}
-                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                {% endfor %}
-          </select>
-        <dt>Attack:
-        <dd><select name="left_attack_player_name">
-                {% for player in players %}
-                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                {% endfor %}
-          </select>
-      </dl>
-      <dl> Right Team
-        <dt>Attack:
-        <dd><select name="right_attack_player_name">
-                {% for player in players %}
-                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                {% endfor %}
-          </select>
-        <dt>Defense:
-        <dd><select name="right_defense_player_name">
-                {% for player in players %}
-                    <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                {% endfor %}
-          </select>
-      </dl>
-        <dd><input type=submit value="New game">
+{% block content %}
+
+    <form action="{{ url_for('games_get_post') }}" method=post class="container">
+    <div class="col-xs-5 col-xs-offset-1">
+        <label for="leftTeam" class="h2">Left Team</label>
+        <div class="form-group" id="leftTeam">
+            <label for="leftDefense">Defense</label>
+            <select name="left_defense_player_name" id="leftDefense" class="form-control">
+                    {% for player in players %}
+                        {% if (game is defined) and (player.name == game.team_left.defense_player.name) %}
+                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                        {% else %}
+                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                        {% endif %}
+                    {% endfor %}
+              </select>
+            <label for="leftAttack">Attack</label>
+            <select name="left_attack_player_name" id="leftAttack" class="form-control">
+                    {% for player in players %}
+                        {% if (game is defined) and (player.name == game.team_left.attack_player.name) %}
+                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                        {% else %}
+                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                        {% endif %}
+                    {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="col-xs-5">
+        <label for="rightTeam" class="h2">Right Team</label>
+        <div class="form-group" id="rightTeam">
+            <label for="rightAttack">Attack</label>
+            <select name="right_attack_player_name" id="rightAttack" class="form-control">
+                    {% for player in players %}
+                        {% if (game is defined) and (player.name == game.team_right.attack_player.name) %}
+                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                        {% else %}
+                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                        {% endif %}
+
+                    {% endfor %}
+            </select>
+            <label for="rightDefense">Defense</label>
+            <select name="right_defense_player_name" id="rightDefense" class="form-control">
+                    {% for player in players %}
+                        {% if (game is defined) and (player.name == game.team_right.defense_player.name) %}
+                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                        {% else %}
+                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                        {% endif %}
+                    {% endfor %}
+              </select>
+        </div>
+    </div>
+        <input type=submit value="New game" class="btn btn-lg center-block btn-success">
     </form>
 
-  <ul class=games>
-  {% for game in games %}
-    <li><h2><a href={{ url_for('games_get', timestamp=game.timestamp) }}>{{ game.timestamp }}</a></h2> <br/>
-        {{  game.summary() }}
-  {% else %}
-    <li><em>Unbelievable.  No games yet, please add</em>
-  {% endfor %}
-  </ul>
+
+    <hr/>
+
+    <div class="container">
+        <p class="h2">Previous games</p>
+
+        <div class="game">
+          {% for game in games %}
+              <div class="{{ loop.cycle('odd', 'even') }}">
+                <span class="timestamp">
+                    <a href={{ url_for('games_get', timestamp=game.timestamp) }}>
+                        {{ game.timestamp }}
+                    </a>
+                </span>
+                <span class="summary">
+                     {{  game.summary() }}
+                </span>
+              </div>
+          {% else %}
+            <em>Unbelievable.  No games yet, please add</em>
+          {% endfor %}
+        </div>
+    </div>
 
 
 {% endblock %}
+
