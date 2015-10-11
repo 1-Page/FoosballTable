@@ -269,4 +269,11 @@ class AFL_DB:
                          ended=open_game.ended))
         self.con.commit()
 
+        if (open_game.game_should_end()):
+            cur.execute("UPDATE games SET ended = :ended WHERE game_id = :game_id",
+                        dict(game_id=open_game.game_id, ended=1))
+            self.con.commit()
+
+
+
 
