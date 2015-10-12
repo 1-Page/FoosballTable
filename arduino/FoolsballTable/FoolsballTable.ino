@@ -17,7 +17,7 @@
 
 #define BALL_REFLECTION_FACTOR 50
 
-#define MINIMUM_TIME_BETWEEN_GOALS 10000 // 10 seconds
+#define MINIMUM_TIME_BETWEEN_GOALS 5000 // 5 seconds
 #define MINIMUM_TIME_GAME_ON_CHECK 15000 // 15 seconds
 
 
@@ -36,8 +36,6 @@ RestClient client = RestClient(serverName, serverPort);
 
 
 
-
-
 int leftCurrentLightLevel; 
 int rightCurrentLightLevel;
 
@@ -47,6 +45,8 @@ int rightLightLevelMax;
 unsigned int last_goal_time;
 unsigned int last_game_on_check;
 unsigned int last_calibration;
+
+byte game_is_on = 1;
 
 void all_laser_control(uint8_t power) {
   digitalWrite(LEFT_LASER_LIGHT, power);   
@@ -74,7 +74,11 @@ void calibrate() {
 
   leftLightLevelMax = leftLevelMax;
   rightLightLevelMax = rightLevelMax;
+
   Serial.println("Done ...");
+  if (!game_is_on) {
+    all_laser_control(LOW);
+  }
 }
 
 
@@ -137,9 +141,11 @@ void check_game_on() {
   if (response == String("Yes")) {
     Serial.println(F("LASER ON."));
     all_laser_control(HIGH);
+    game_is_on = 1
   } else {
     Serial.println(F("LASER OFF."));
     all_laser_control(LOW);
+    game_is_on = 0
   }
 }
 
@@ -180,18 +186,9 @@ byte check_goal() {
 
 void loop() 
 {
-  leftCurrentLightLevel = analogRead(LEFT_LIGHT_SENSOR);
-  rightCurrentLightLevel = analogRead(RIGHT_LIGHT_SENSOR);
-
   unsigned now = millis();
 
-  if ((now - last_goal_time) > MINIMUM_TIME_BETWEEN_GOALS) {
-    if (check_goal()) {
-      last_goal_time = now;
-    }
-  }
-  
-  if ((now - last_calibration) > CALIBRATE_EVERY_MSECONDS) {    
+  if ((now - last_calibration) > CALIBRATE_EVERY_MSECONDS) {
     calibrate();
     last_calibration = now;
   }
@@ -199,7 +196,18 @@ void loop()
   if ((now - last_game_on_check) > MINIMUM_TIME_GAME_ON_CHECK) {
     check_game_on();
     last_game_on_check = now;
-  } 
+  }
+
+  if (game_is_on) {
+    leftCurrentLightLevel = analogRead(LEFT_LIGHT_SENSOR);
+    rightCurrentLightLevel = analogRead(RIGHT_LIGHT_SENSOR);
+
+    if ((now - last_goal_time) > MINIMUM_TIME_BETWEEN_GOALS) {
+      if (check_goal()) {
+        last_goal_time = now;
+      }
+    }
+  }
 
   
 }
