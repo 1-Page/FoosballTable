@@ -141,11 +141,11 @@ void check_game_on() {
   if (response == String("Yes")) {
     Serial.println(F("LASER ON."));
     all_laser_control(HIGH);
-    game_is_on = 1
+    game_is_on = 1;
   } else {
     Serial.println(F("LASER OFF."));
     all_laser_control(LOW);
-    game_is_on = 0
+    game_is_on = 0;
   }
 }
 
