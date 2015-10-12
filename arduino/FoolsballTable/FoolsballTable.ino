@@ -21,7 +21,6 @@
 #define MINIMUM_TIME_GAME_ON_CHECK 15000 // 15 seconds
 
 
-//#define SERVER "10.4.4.161"
 #define LEFT_SIDE 0
 #define RIGHT_SIDE 1
 
