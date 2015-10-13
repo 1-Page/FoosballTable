@@ -42,9 +42,9 @@ int rightCurrentLightLevel;
 int leftLightLevelMax;
 int rightLightLevelMax;
 
-unsigned int last_goal_time;
-unsigned int last_game_on_check;
-unsigned int last_calibration;
+unsigned int last_goal_time = 0;
+unsigned int last_game_on_check = 0;
+unsigned int last_calibration = 0;
 
 byte game_is_on = 1;
 
@@ -76,7 +76,7 @@ void calibrate() {
   rightLightLevelMax = rightLevelMax;
 
   Serial.println("Done ...");
-  if (!game_is_on) {
+  if (game_is_on == 0) {
     all_laser_control(LOW);
   }
 }
