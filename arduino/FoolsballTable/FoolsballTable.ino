@@ -19,6 +19,7 @@
 
 #define MINIMUM_TIME_BETWEEN_GOALS 5000 // 5 seconds
 #define MINIMUM_TIME_GAME_ON_CHECK 15000 // 15 seconds
+#define MINIMUM_TIME_GAME_OFF_CHECK 120000 // 2 minutes
 
 
 #define LEFT_SIDE 0
@@ -42,9 +43,9 @@ int rightCurrentLightLevel;
 int leftLightLevelMax;
 int rightLightLevelMax;
 
-unsigned int last_goal_time = 0;
-unsigned int last_game_on_check = 0;
-unsigned int last_calibration = 0;
+unsigned long last_goal_time = 0;
+unsigned long last_game_on_check = 0;
+unsigned long last_calibration = 0;
 
 byte game_is_on = 1;
 
@@ -100,11 +101,18 @@ void setup()
   pinMode(LEFT_LASER_LIGHT, OUTPUT);
   
   calibrate();
-  last_calibration = millis();
+  unsigned long now = millis();
+  last_calibration = now;
   Serial.print("Left:");
   Serial.print(leftLightLevelMax, DEC);
   Serial.print("Right:");
   Serial.print(rightLightLevelMax, DEC);
+
+  check_game_on();
+  last_game_on_check = now;
+
+  last_goal_time = now - MINIMUM_TIME_BETWEEN_GOALS;
+  
   all_laser_control(HIGH);
 }
 
@@ -186,27 +194,47 @@ byte check_goal() {
 
 void loop() 
 {
-  unsigned now = millis();
+  unsigned long now = millis();
 
-  if ((now - last_calibration) > CALIBRATE_EVERY_MSECONDS) {
+  if (abs(now - last_calibration) > CALIBRATE_EVERY_MSECONDS) {
     calibrate();
     last_calibration = now;
   }
 
-  if ((now - last_game_on_check) > MINIMUM_TIME_GAME_ON_CHECK) {
-    check_game_on();
-    last_game_on_check = now;
-  }
-
   if (game_is_on) {
+    /*
+    Serial.print("now: ");
+    Serial.print(now);
+    Serial.print(" - ");
+    Serial.print(last_game_on_check);
+    Serial.print(" = ");
+    Serial.print((now - last_game_on_check));
+    Serial.print(" > ");
+    Serial.print(MINIMUM_TIME_GAME_OFF_CHECK);
+    Serial.print(" : ");
+    Serial.println(((now - last_game_on_check) > MINIMUM_TIME_GAME_OFF_CHECK));
+    */
+    
+     if (abs(now - last_game_on_check) > MINIMUM_TIME_GAME_OFF_CHECK) {
+      check_game_on();
+      last_game_on_check = now;
+    }        
+   
+  
     leftCurrentLightLevel = analogRead(LEFT_LIGHT_SENSOR);
     rightCurrentLightLevel = analogRead(RIGHT_LIGHT_SENSOR);
 
-    if ((now - last_goal_time) > MINIMUM_TIME_BETWEEN_GOALS) {
+    if (abs(now - last_goal_time) > MINIMUM_TIME_BETWEEN_GOALS) {
       if (check_goal()) {
         last_goal_time = now;
       }
     }
+  } else {
+    if (abs(now - last_game_on_check) > MINIMUM_TIME_GAME_ON_CHECK) {
+      check_game_on();
+      last_game_on_check = now;      
+    }
+    
   }
 
   
