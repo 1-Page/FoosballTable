@@ -98,17 +98,17 @@ def games_get_post():
 def games_get(timestamp):
     all_players = db.get_all_players()
     game = db.get_game_by_timestamp(timestamp)
-    """
-    if request.method == 'GET':
-        return "games_get"
-    elif request.method == 'PUT':
-        return "games_get"
-    elif request.method == 'DELETE':
-        return "games_get"
-    elif request.method == 'POST':
-        return "games_get"
-    """
     return render_template('game.html', game=game, players=all_players)
+
+@app.route('/games/ajax/<timestamp>',methods=['GET', 'PUT', 'DELETE', 'POST'])
+def games_get_score_and_time(timestamp):
+    game = db.get_game_by_timestamp(timestamp)
+    output = {'score':"{} x {}".format(game.score_left, game.score_right),
+              'time':game.time_left_string(),
+              'ended':bool(game.ended)}
+    return jsonify(output)
+
+
 
 @app.route('/games/<timestamp>/end',methods=['GET'])
 def end_game(timestamp):

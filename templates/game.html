@@ -1,4 +1,4 @@
-{% extends "autoreload.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
@@ -11,7 +11,7 @@
             </div>
 
             <div class="col-xs-8 text-center score">
-                {{ game.score_left }} x {{ game.score_right }}
+                <span id="game_score">{{ game.score_left }} x {{ game.score_right }}</span>
             </div>
 
             <div class="col-xs-2 text-right">
@@ -23,7 +23,7 @@
         {% if not game.ended %}
         <div class="container text-center h1">
             <div class="time">
-                Time left: {{ game.time_left_string() }}
+                Time left: <span id="time_left">{{ game.time_left_string() }}</span>
             </div>
 
 
@@ -116,15 +116,18 @@
 
     </div>
 
+    <script>
+        var url = location.href.replace('games', 'games/ajax')
+        var interval = setInterval(function() {
+            $.getJSON(url, function(json) {
+                if (json.ended) clearInterval(interval)
+                else {
+                    $('#time_left').html(json.time)
+                    $('#game_score').html(json.score)
+                }
+            })
+        }, 1000)
+    </script>
+
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
