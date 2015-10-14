@@ -1,5 +1,6 @@
 import config
 import tools
+import json
 
 
 class Player(object):
@@ -68,7 +69,15 @@ class Game(object):
         else:
             return "{tright} defeated {tleft} with the score {sright}x{sleft}".format(tleft=self.team_left.summary(), tright=self.team_right.summary(), sleft=self.score_left, sright=self.score_right)
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
 
+    def to_json(self):
+        return json.dumps(dict(score_left=self.score_left,
+                                  score_right=self.score_right,
+                                  ended=self.ended,
+                                  summary=self.summary(),
+                                  timeleft=self.time_left_string()))
 
 
 

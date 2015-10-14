@@ -2,6 +2,7 @@
 {% import "bootstrap/utils.html" as utils %}
 
 {% block content %}
+    {{super()}}
 
     <form action="{{ url_for('games_get_post') }}" method=post class="container">
     <div class="col-xs-5 col-xs-offset-1">

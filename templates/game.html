@@ -1,6 +1,28 @@
-{% extends "autoreload.html" %}
+{% extends "base.html" %}
 
 {% block content %}
+    {{super()}}
+
+
+
+    <script type="text/javascript">
+        var source = new EventSource("{{ url_for('get_game_score', timestamp=game.timestamp) }}");
+        source.onmessage = function (event) {
+                var data = JSON.parse(event.data);
+                $('#score_left').text(data.score_left);
+                $('#score_right').text(data.score_right);
+                $('#timeleft').text(data.timeleft);
+                $('#summary').text(data.summary);
+                //document.getElementById("score_left").innerHTML = data.score_left;
+                //document.getElementById("score_right").innerHTML = data.score_right;
+                //document.getElementById("timeleft").innerHTML = data.timeleft;
+                //document.getElementById("summary").innerHTML = data.summary;
+                if (data.ended) {
+                    location.reload(true);
+                }
+        };
+
+    </script>
 
     <div class="container game">
         <div class="container h1">
@@ -11,7 +33,7 @@
             </div>
 
             <div class="col-xs-8 text-center score">
-                {{ game.score_left }} x {{ game.score_right }}
+                <span id="score_left">{{ game.score_left }}</span> x <span id="score_right">{{ game.score_right }}</span>
             </div>
 
             <div class="col-xs-2 text-right">
@@ -23,7 +45,7 @@
         {% if not game.ended %}
         <div class="container text-center h1">
             <div class="time">
-                Time left: {{ game.time_left_string() }}
+                Time left: <span id="timeleft">{{ game.time_left_string() }}</span>
             </div>
 
 
@@ -40,7 +62,7 @@
                     {{ game.timestamp }}
                 </a>
             </span>
-            <span class="summary">
+            <span class="summary" id="summary">
                  {{  game.summary() }}
             </span>
           </div>

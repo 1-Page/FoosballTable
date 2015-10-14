@@ -2,6 +2,7 @@
 {% import "bootstrap/utils.html" as utils %}
 
 {% block content %}
+    {{super()}}
 
     <h2>{{ team.team_id|safe }}</h2> <br/>
     Defense: {{ team.defense_player.name }} <br/>

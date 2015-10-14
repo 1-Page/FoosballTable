@@ -1,27 +1,30 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, Response
 from flask_bootstrap import Bootstrap
 
 from model import Player, Team, Game, AFL_DB
 import config
 import tools
+import time
+
+import json
+from gevent.queue import Queue
 
 app = Flask(__name__)
 Bootstrap(app)
 
 db = AFL_DB(database=config.DBNAME)
 
+
+#queue = Queue()
+
+
 @app.errorhandler(405)
 def method_not_allowed(error=None):
     app.logger.warning('Method Not Allowed: ' + request.method, )
 
-    message = {
-        'status': 405,
-        'message': 'Method Not Allowed: ' + request.method,
-    }
-    resp = jsonify(message)
-    resp.status_code = 405
+    message = 'Method Not Allowed: ' + request.method,
 
-    return resp
+    return message
 
 
 @app.route('/')
@@ -94,21 +97,33 @@ def games_get_post():
 
 
 
-@app.route('/games/<timestamp>',methods=['GET', 'PUT', 'DELETE', 'POST'])
+@app.route('/games/<timestamp>',methods=['GET'])
 def games_get(timestamp):
     all_players = db.get_all_players()
     game = db.get_game_by_timestamp(timestamp)
-    """
-    if request.method == 'GET':
-        return "games_get"
-    elif request.method == 'PUT':
-        return "games_get"
-    elif request.method == 'DELETE':
-        return "games_get"
-    elif request.method == 'POST':
-        return "games_get"
-    """
     return render_template('game.html', game=game, players=all_players)
+
+
+def yield_game_score(timestamp):
+    previous_game_json = ""
+    game = db.get_game_by_timestamp(timestamp)
+    game_json = game.to_json()
+    while not game.ended:
+
+        if game != previous_game_json:
+            previous_game_json = game_json
+            yield "data: "+game_json+"\n\n"
+
+        else:
+            time.sleep(1)
+            game = db.get_game_by_timestamp(timestamp)
+            game_json = game.to_json()
+        #todo: rethink this by adding a message between POST goal and yield
+
+
+@app.route('/games/<timestamp>/score')
+def get_game_score(timestamp):
+    return Response(yield_game_score(timestamp), mimetype="text/event-stream")
 
 @app.route('/games/<timestamp>/end',methods=['GET'])
 def end_game(timestamp):
@@ -119,6 +134,7 @@ def end_game(timestamp):
 @app.route('/goal/<side>',methods=['POST'])
 def goal(side):
     db.goal(side=side)
+    #queue.put(1)
     print "Received"+request.data
     return "OK"
 
@@ -131,5 +147,24 @@ def is_game_on():
         return "No"
 
 
+
+"""
+import socket
+import SocketServer
+
+def patched_finish(self):
+    try:
+        if not self.wfile.closed:
+            self.wfile.flush()
+            self.wfile.close()
+    except socket.error:
+        # Remove this code, if you don't need access to the Request object
+            # More cleanup code...
+        pass
+    self.rfile.close()
+
+SocketServer.StreamRequestHandler.finish = patched_finish
+"""
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', threaded=False, port=7008)
+    app.run(debug=False, host='0.0.0.0', threaded=True, port=7008)
