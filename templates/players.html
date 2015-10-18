@@ -4,27 +4,47 @@
 {% block content %}
 
 
+    <div class="container">
+        <div class="h2">
+            New player
+        </div>
+        <div class="col-xs-4">
+            <form action="{{ url_for('players_get_post') }}" method=post enctype=multipart/form-data>
+                <div class="form-group">
+                    <label for="playerName">Player Name</label>
+                    <input type=text name=name class="form-control" id="playerName" placeholder="Player Name">
+                </div>
+                <div class="form-group">
+                    <label for="photoInput">Photo</label>
+                    <input type="file" id="photoInput" name=photo>
+                    <p class="help-block">Add user photo.</p>
+                </div>
+                <button type="submit" class="btn btn-success">Add</button>
+            </form>
+        </div>
+    </div>
 
-  <ul class=players>
-  {% for player in players %}
-    <li><h2><a href={{ url_for('players_name_get_delete_put', name=player.name) }}>{{ player.name|safe }}</a></h2>
-        <img src="{{ player.photo }}" class="player">
-  {% else %}
-    <li><em>Unbelievable.  No players, please add</em>
-  {% endfor %}
-  </ul>
+    <hr/>
 
-    <form action="{{ url_for('players_get_post') }}" method=post enctype=multipart/form-data>
-      <dl>
-        <dt>Player Name:
-        <dd><input type=text size=30 name=name>
-        <dt>Photo:
-        <dd><input type=file name=photo>
-        <dd><input type=submit value=Add>
-      </dl>
-    </form>
+    <div class="container-fluid">
+        <div class="row">
+          {% for player in players %}
+            <div class="thumbnail col-md-2 col-xs-4">
+                <a href="{{ url_for('players_name_get', name=player.name) }}">
+                    <img src="{{ player.photo }}" class="player" alt="{{ player.name|safe }}" />
+                    <div class="caption post-content h3 text-center">
+                        {{ player.name }}
+                    </div>
+                </a>
+            </div>
+          {% else %}
+            <em>Unbelievable.  No players, please add</em>
+          {% endfor %}
+        </div>
+    </div>
 
-</form>
+
+
 
 
 {% endblock %}

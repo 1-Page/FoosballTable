@@ -141,6 +141,19 @@ class AFL_DB:
             player_id = cur.lastrowid
             return Player(player_id=player_id, name=name, photo=photo)
 
+    def edit_player(self, player_name, new_player_name, new_player_photo):
+        cur = self.con.cursor()
+
+        player = self.get_player_by_name(name=player_name)
+        if not player:
+            return None
+        else:
+            player_dict = dict(name=new_player_name, photo=new_player_photo, player_id=player.player_id)
+            cur.execute("UPDATE players SET name = :name, photo = :photo WHERE player_id = :player_id", player_dict)
+            self.con.commit()
+            return Player(**player_dict)
+
+
     def get_all_teams(self):
         cur = self.con.cursor()
         cur.execute("SELECT team_id, defense_player, attack_player FROM teams")

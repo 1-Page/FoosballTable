@@ -3,14 +3,35 @@
 
 {% block content %}
 
-  <ul class=teams>
+  <div class="container">
   {% for team in teams %}
-    <li><h2><a href={{ url_for('teams_name_get', team_id=team.team_id) }}>{{ team.team_id|safe }}</a></h2><br/>
-    Defense: {{ team.defense_player.name }} <br/>
-    Attack: {{ team.attack_player.name }} <br/>
+        <div class="col-xs-4 h2">
+            <a href="{{ url_for('teams_name_get', team_id=team.team_id) }}">
+                {{ team.summary() }} <br/>
+
+                <div class="thumbnail col-md-6 col-xs-6">
+                    <!--<a href="{{ url_for('players_name_get', name=team.defense_player.name) }}">-->
+                        <img src="{{ team.defense_player.photo }}" class="player" alt="{{ team.defense_player.name|safe }}" />
+                        <div class="caption post-content h4 text-center">
+                            Defense: {{ team.defense_player.name }}
+                        </div>
+                    <!--</a>-->
+                </div>
+
+                <div class="thumbnail col-md-6 col-xs-6">
+                    <!--<a href="{{ url_for('players_name_get', name=team.attack_player.name) }}">-->
+                        <img src="{{ team.attack_player.photo }}" class="player" alt="{{ team.attack_player.name|safe }}" />
+                        <div class="caption post-content h4 text-center">
+                            Attack: {{ team.attack_player.name }}
+                        </div>
+                    <!--</a>-->
+                </div>
+            </a>
+
+        </div>
   {% else %}
     <li><em>Unbelievable.  No teams yet</em>
   {% endfor %}
-  </ul>
+  </div>
 
 {% endblock %}

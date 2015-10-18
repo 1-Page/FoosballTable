@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
 
-
 from model import Player, Team, Game, AFL_DB
 import config
 import tools
@@ -17,6 +16,7 @@ app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
 
 photos = UploadSet('photos', IMAGES)
 configure_uploads(app, (photos,))
+
 
 @app.errorhandler(405)
 def method_not_allowed(error=None):
@@ -62,18 +62,57 @@ def players_get_post():
     return render_template('players.html', players=all_players)
 
 
-@app.route('/players/<name>', methods=['GET', 'DELETE', 'PUT'])
-def players_name_get_delete_put(name):
+@app.route('/players/<name>')
+def players_name_get(name):
+    player = db.get_player_by_name(name=name)
+    return render_template('player_page.html', player=player)
+
+
+@app.route('/players/<name>/edit', methods=['POST', 'GET'])
+def player_name_edit(name):
     if request.method == 'GET':
-        player = db.get_player_by_name(name=name)
-        return render_template('player_page.html', player=player)
-    elif request.method == 'DELETE':
-        return "DELETE {name}: NOT IMPLEMENTED YET ".format(name=name)
-    elif request.method == 'PUT':
-        player = db.create_player(name)
-        return "PUT {name}: NOT IMPLEMENTED YET ".format(name=name)
-    else:
-        return method_not_allowed()
+        redirect(url_for('players_name_get', name=name))
+
+    player = db.get_player_by_name(name=name)
+
+
+    new_name = request.form['name']
+    photoUrl = player.photo
+    if 'photo' in request.files:
+        fileStorage = request.files['photo']
+        if fileStorage.filename != "":
+            try:
+                photoName = photos.save(fileStorage)
+                photoUrl = photos.url(photoName)
+            except UploadNotAllowed:
+                #return to default if wrong file is given
+                photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
+
+    edited_player = db.edit_player(player_name=name, new_player_name=new_name, new_player_photo=photoUrl)
+    return redirect(url_for('players_name_get', name=new_name))
+
+@app.route('/players/<name>/delete', methods=['POST'])
+def player_name_delete(name):
+    if request.method == 'GET':
+        redirect(url_for('players_name_get', name=name))
+
+    player = db.get_player_by_name(name=name)
+
+
+    new_name = request.form['name']
+    photoUrl = player.photo
+    if 'photo' in request.files:
+        fileStorage = request.files['photo']
+        if fileStorage.filename != "":
+            try:
+                photoName = photos.save(fileStorage)
+                photoUrl = photos.url(photoName)
+            except UploadNotAllowed:
+                #return to default if wrong file is given
+                photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
+
+    edited_player = db.edit_player(player_name=name, new_player_name=new_name, new_player_photo=photoUrl)
+    return render_template('player_page.html', player=edited_player)
 
 
 @app.route('/teams')
