@@ -4,9 +4,10 @@ import sqlite3 as lite
 
 
 class Player(object):
-    def __init__(self, player_id, name):
+    def __init__(self, player_id, name, photo):
         self.player_id = player_id
         self.name = name
+        self.photo = photo
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -94,53 +95,51 @@ class AFL_DB:
 
     def _create_all_tables(self):
         cur = self.con.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS players (player_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS teams (team_id INTEGER PRIMARY KEY AUTOINCREMENT, defense_player INT, attack_player INT)")
-        cur.execute(
-            "CREATE TABLE IF NOT EXISTS games (game_id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, team_left INT, team_right INT, score_left INT, score_right INT, ended INT)")
+        cur.execute("CREATE TABLE IF NOT EXISTS players (player_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, photo TEXT)")
+        cur.execute("CREATE TABLE IF NOT EXISTS teams (team_id INTEGER PRIMARY KEY AUTOINCREMENT, defense_player INT, attack_player INT)")
+        cur.execute("CREATE TABLE IF NOT EXISTS games (game_id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, team_left INT, team_right INT, score_left INT, score_right INT, ended INT)")
 
     def get_player_by_name(self, name):
         cur = self.con.cursor()
 
         player_dict = dict(name=name)
 
-        cur.execute("SELECT player_id, name FROM players WHERE name LIKE :name", player_dict)
+        cur.execute("SELECT player_id, name, photo FROM players WHERE name LIKE :name", player_dict)
         player_exists = cur.fetchone()
         if player_exists:
-            player_id, name = player_exists
-            return Player(player_id=player_id, **player_dict)
+            player_id, _, photo = player_exists
+            return Player(player_id=player_id, name=name, photo=photo)
         else:
             return None
 
     def get_player(self, player_id):
         cur = self.con.cursor()
 
-        cur.execute("SELECT player_id, name FROM players WHERE player_id = :player_id", dict(player_id=player_id))
+        cur.execute("SELECT player_id, name, photo FROM players WHERE player_id = :player_id", dict(player_id=player_id))
         player_exists = cur.fetchone()
         if player_exists:
-            player_id, name = player_exists
-            return Player(player_id=player_id, name=name)
+            player_id, name, photo = player_exists
+            return Player(player_id=player_id, name=name, photo=photo)
         else:
             return None
 
     def get_all_players(self):
         cur = self.con.cursor()
-        cur.execute("SELECT player_id, name FROM players")
+        cur.execute("SELECT player_id, name, photo FROM players")
         all_players = list(cur.fetchall())
-        return [Player(player_id=player_id, name=name) for player_id, name in all_players]
+        return [Player(player_id=player_id, name=name, photo=photo) for player_id, name, photo in all_players]
 
-    def create_player(self, name):
+    def create_player(self, name, photo):
         cur = self.con.cursor()
 
         if self.get_player_by_name(name=name):
             return None
         else:
-            player_dict = dict(name=name)
-            cur.execute("INSERT INTO players(name) VALUES(:name)", player_dict)
+            player_dict = dict(name=name, photo=photo)
+            cur.execute("INSERT INTO players(name, photo) VALUES(:name, :photo)", player_dict)
             self.con.commit()
             player_id = cur.lastrowid
-            return Player(player_id=player_id, **player_dict)
+            return Player(player_id=player_id, name=name, photo=photo)
 
     def get_all_teams(self):
         cur = self.con.cursor()

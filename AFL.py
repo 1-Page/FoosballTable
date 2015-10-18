@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
+from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
+
 
 from model import Player, Team, Game, AFL_DB
 import config
@@ -10,6 +12,11 @@ Bootstrap(app)
 
 db = AFL_DB(database=config.DBNAME)
 
+app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
+#app.config['UPLOADS_DEFAULT_URL'] = ''
+
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, (photos,))
 
 @app.errorhandler(405)
 def method_not_allowed(error=None):
@@ -38,7 +45,17 @@ def home_page():
 def players_get_post():
     if request.method == 'POST':
         name = request.form['name']
-        db.create_player(name=name)
+        photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
+        if 'photo' in request.files:
+            fileStorage = request.files['photo']
+            if fileStorage.filename != "":
+                try:
+                    photoName = photos.save(fileStorage)
+                    photoUrl = photos.url(photoName)
+                except UploadNotAllowed:
+                    photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
+
+        db.create_player(name=name, photo=photoUrl)
 
     all_players = db.get_all_players()
 
@@ -135,6 +152,18 @@ def is_game_on():
         return "Yes"
     else:
         return "No"
+
+
+photos = UploadSet('photos', IMAGES)
+
+
+@app.route('/photo/<id>')
+def show(id):
+    photo = Photo.load(id)
+    if photo is None:
+        abort(404)
+    url = photos.url(photo.filename)
+    return render_template('show.html', url=url, photo=photo)
 
 
 if __name__ == '__main__':

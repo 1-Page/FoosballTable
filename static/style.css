@@ -8,6 +8,11 @@
     background-color: #eeeeee;
 }
 
+img.player {
+    height: 60px;
+    width: auto;
+}
+
 .game .even {
     background-color: transparent;
 }
