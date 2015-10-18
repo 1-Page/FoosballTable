@@ -5,13 +5,18 @@
 {% block head %}
     {{super()}}
     {{fixes.ie8()}}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="{{url_for('static', filename='image-picker.js')}}" type="text/javascript"></script>
+
 {%- endblock %}
 
 {% block styles -%}
     {{super()}}  {# do not forget to call super or Bootstrap's own stylesheets
                     will disappear! #}
     <link rel="stylesheet" type="text/css"
-          href="{{url_for('static', filename='style.css')}}">
+          href="{{url_for('static', filename='style.css')}}"/>
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='image-picker.css')}}"/>
 {% endblock %}
 
 {# Finally, round things out with navigation #}

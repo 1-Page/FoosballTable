@@ -4,55 +4,71 @@
 {% block content %}
 
     <form action="{{ url_for('games_get_post') }}" method=post class="container">
-    <div class="col-xs-5 col-xs-offset-1">
+    <div class="col-xs-5 col-xs-offset-2">
         <label for="leftTeam" class="h2">Yellow Team</label>
-        <div class="form-group" id="leftTeam">
-            <label for="leftDefense">Defense</label>
-            <select name="left_defense_player_name" id="leftDefense" class="form-control">
-                    {% for player in players %}
-                        {% if (game is defined) and (player.name == game.team_left.defense_player.name) %}
-                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                        {% else %}
-                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                        {% endif %}
-                    {% endfor %}
-              </select>
-            <label for="leftAttack">Attack</label>
-            <select name="left_attack_player_name" id="leftAttack" class="form-control">
-                    {% for player in players %}
-                        {% if (game is defined) and (player.name == game.team_left.attack_player.name) %}
-                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                        {% else %}
-                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                        {% endif %}
-                    {% endfor %}
-            </select>
+        <div class="form-group row" id="leftTeam">
+            <div class="col-xs-4">
+                <label for="leftDefense">Defense</label>
+                <div class="picker">
+                    <select name="left_defense_player_name" id="leftDefense" class="form-control image-picker">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_left.defense_player.name) %}
+                                <option data-img-src="{{player.photo}}" name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option data-img-src="{{player.photo}}" name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <label for="leftAttack">Attack</label>
+                <div class="picker">
+                <select name="left_attack_player_name" id="leftAttack" class="form-control image-picker">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_left.attack_player.name) %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                </select>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-xs-5">
         <label for="rightTeam" class="h2">White Team</label>
-        <div class="form-group" id="rightTeam">
-            <label for="rightAttack">Attack</label>
-            <select name="right_attack_player_name" id="rightAttack" class="form-control">
-                    {% for player in players %}
-                        {% if (game is defined) and (player.name == game.team_right.attack_player.name) %}
-                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                        {% else %}
-                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                        {% endif %}
+        <div class="form-group row" id="rightTeam">
+            <div class="col-xs-4">
+                <label for="rightAttack">Attack</label>
+                <div class="picker">
+                <select name="right_attack_player_name" id="rightAttack" class="form-control image-picker">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_right.attack_player.name) %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
 
-                    {% endfor %}
-            </select>
-            <label for="rightDefense">Defense</label>
-            <select name="right_defense_player_name" id="rightDefense" class="form-control">
-                    {% for player in players %}
-                        {% if (game is defined) and (player.name == game.team_right.defense_player.name) %}
-                            <option name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
-                        {% else %}
-                            <option name="{{ player.name  }}">{{ player.name|safe  }}</option>
-                        {% endif %}
-                    {% endfor %}
-              </select>
+                        {% endfor %}
+                </select>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <label for="rightDefense">Defense</label>
+                <div class="picker">
+                <select name="right_defense_player_name" id="rightDefense" class="form-control image-picker">
+                        {% for player in players %}
+                            {% if (game is defined) and (player.name == game.team_right.defense_player.name) %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
+                            {% else %}
+                                <option data-img-src="{{player.photo}}"name="{{ player.name  }}">{{ player.name|safe  }}</option>
+                            {% endif %}
+                        {% endfor %}
+                  </select>
+                </div>
+            </div>
         </div>
     </div>
         <input type=submit value="New game" class="btn btn-lg center-block btn-success">
@@ -82,6 +98,10 @@
         </div>
     </div>
 
+
+    <script>
+        $("select").imagepicker()
+    </script>
 
 {% endblock %}
 
