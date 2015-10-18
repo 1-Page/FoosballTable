@@ -10,6 +10,7 @@ Bootstrap(app)
 
 db = AFL_DB(database=config.DBNAME)
 
+
 @app.errorhandler(405)
 def method_not_allowed(error=None):
     app.logger.warning('Method Not Allowed: ' + request.method, )
@@ -32,7 +33,8 @@ def home_page():
     else:
         return redirect(url_for('games_get', timestamp=game.timestamp))
 
-@app.route('/players',methods=['GET', 'POST'])
+
+@app.route('/players', methods=['GET', 'POST'])
 def players_get_post():
     if request.method == 'POST':
         name = request.form['name']
@@ -42,7 +44,8 @@ def players_get_post():
 
     return render_template('players.html', players=all_players)
 
-@app.route('/players/<name>',methods=['GET', 'DELETE', 'PUT'])
+
+@app.route('/players/<name>', methods=['GET', 'DELETE', 'PUT'])
 def players_name_get_delete_put(name):
     if request.method == 'GET':
         player = db.get_player_by_name(name=name)
@@ -55,19 +58,21 @@ def players_name_get_delete_put(name):
     else:
         return method_not_allowed()
 
+
 @app.route('/teams')
 def teams_get():
     all_teams = db.get_all_teams()
     return render_template('teams.html', teams=all_teams)
 
-@app.route('/teams/<team_id>',methods=['GET'])
+
+@app.route('/teams/<team_id>', methods=['GET'])
 def teams_name_get(team_id):
     team = db.get_team(team_id=team_id)
     return render_template('team_page.html', team=team)
 
+
 @app.route('/games', methods=['GET', 'POST'])
 def games_get_post():
-
     all_players = db.get_all_players()
 
     if request.method == 'POST':
@@ -76,11 +81,11 @@ def games_get_post():
         right_defense_player_name = request.form['right_defense_player_name']
         right_attack_player_name = request.form['right_attack_player_name']
 
-        timestamp = tools.getTimestampForNow()
+        timestamp = tools.get_timestamp_for_now()
         team_left = db.create_team(defense_player=db.get_player_by_name(left_defense_player_name),
                                    attack_player=db.get_player_by_name(left_attack_player_name))
         team_right = db.create_team(defense_player=db.get_player_by_name(right_defense_player_name),
-                                   attack_player=db.get_player_by_name(right_attack_player_name))
+                                    attack_player=db.get_player_by_name(right_attack_player_name))
 
         print "RIGHT", team_right.summary()
         print "LEFT", team_left.summary()
@@ -93,36 +98,37 @@ def games_get_post():
         return render_template('games.html', players=all_players, games=all_games)
 
 
-
-@app.route('/games/<timestamp>',methods=['GET', 'PUT', 'DELETE', 'POST'])
+@app.route('/games/<timestamp>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def games_get(timestamp):
     all_players = db.get_all_players()
     game = db.get_game_by_timestamp(timestamp)
     return render_template('game.html', game=game, players=all_players)
 
-@app.route('/games/ajax/<timestamp>',methods=['GET', 'PUT', 'DELETE', 'POST'])
+
+@app.route('/games/ajax/<timestamp>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def games_get_score_and_time(timestamp):
     game = db.get_game_by_timestamp(timestamp)
-    output = {'score':"{} x {}".format(game.score_left, game.score_right),
-              'time':game.time_left_string(),
-              'ended':bool(game.ended)}
+    output = {'score': "{} x {}".format(game.score_left, game.score_right),
+              'time': game.time_left_string(),
+              'ended': bool(game.ended)}
     return jsonify(output)
 
 
-
-@app.route('/games/<timestamp>/end',methods=['GET'])
+@app.route('/games/<timestamp>/end', methods=['GET'])
 def end_game(timestamp):
     # ignoring timestamp, close everything
-    db._end_all_opened_games()
+    db.end_all_opened_games()
     return redirect(url_for('games_get', timestamp=timestamp))
 
-@app.route('/goal/<side>',methods=['POST'])
+
+@app.route('/goal/<side>', methods=['POST'])
 def goal(side):
     db.goal(side=side)
-    print "Received"+request.data
+    print "Received" + request.data
     return "OK"
 
-@app.route('/is_game_on',methods=['GET'])
+
+@app.route('/is_game_on', methods=['GET'])
 def is_game_on():
     game = db.get_open_game()
     if game:

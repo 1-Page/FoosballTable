@@ -5,6 +5,6 @@ RIGHT = "right"
 LEFT = "left"
 
 GAME_GOAL_LIMIT = 10
-GAME_TIME_LIMIT = 30*60
+GAME_TIME_LIMIT = 30 * 60
 
 DBNAME = "AFL.db"
