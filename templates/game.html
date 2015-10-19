@@ -158,7 +158,12 @@
         var url = location.href.replace('games', 'games/ajax')
         var interval = setInterval(function() {
             $.getJSON(url, function(json) {
-                if (json.ended) clearInterval(interval)
+                if (json.ended) {
+                    clearInterval(interval);
+                    $('#time_left').html(json.time)
+                    $('#game_score').html(json.score)
+                    //window.location.reload(true);
+                }
                 else {
                     $('#time_left').html(json.time)
                     $('#game_score').html(json.score)
