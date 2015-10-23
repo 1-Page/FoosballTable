@@ -36,12 +36,12 @@ class Game(object):
         self.score_right = score_right
         self.ended = ended
 
-    def goal_scored(self, side):
+    def goal_scored(self, side, value=1):
         if side == config.RIGHT:
-            self.score_right += 1
+            self.score_right += value
             return self.score_right
         elif side == config.LEFT:
-            self.score_left += 1
+            self.score_left += value
             return self.score_left
         else:
             return 0
@@ -288,9 +288,9 @@ class AFL_DB:
         else:
             return None
 
-    def goal(self, side):
+    def goal(self, side, value=1):
         open_game = self.get_open_game()
-        open_game.goal_scored(side=side)
+        open_game.goal_scored(side=side, value=value)
 
         cur = self.con.cursor()
 

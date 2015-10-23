@@ -1,6 +1,43 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <script>
+    var urlLP = '{{ url_for("goal_value", side="left", value="1") }}';
+    var urlLM = '{{ url_for("goal_value", side="left", value="-1") }}';
+    var urlRP = '{{ url_for("goal_value", side="right", value="1") }}';
+    var urlRM = '{{ url_for("goal_value", side="right", value="-1") }}';
+
+    function adjustScore(side, value) {
+
+        var url = "";
+
+        if (side == "left") {
+            if (value == "1") {
+                url = urlLP;
+            } else if (value == "-1") {
+                url = urlLM;
+            }
+        } else if (side == "right") {
+            if (value == "1") {
+                url = urlRP;
+            } else if (value == "-1") {
+                url = urlRM;
+            }
+        }
+
+            $.ajax({
+            type:'POST',
+            url: url,
+            success:function(data) {
+                // Do the handling here
+            },
+            error:function() {
+                alert("Sorry, Ajax call Failed");
+            }
+        });
+
+    }
+    </script>
 
     <div class="container game">
         <div class="container h1">
@@ -16,7 +53,16 @@
                 </div>
             </div>
 
-            <div class="col-xs-8 text-center score">
+            <div class="col-xs-1 text-center">
+                <button type="button" class="btn btn-default" aria-label="Plus" onclick="adjustScore('left', '1');">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="false"></span>
+                </button>
+                <button type="button" class="btn btn-default" aria-label="Minus" onclick="adjustScore('left', '-1');">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="false"></span>
+                </button>
+            </div>
+
+            <div class="col-xs-6 text-center score">
                 <span id="game_score">{{ game.score_left }} x {{ game.score_right }}</span>
 
                 {% if not game.ended %}
@@ -44,10 +90,15 @@
                     </span>
                   </div>
                 {% endif %}
+            </div>
 
-
-
-
+            <div class="col-xs-1 text-center">
+                <button type="button" class="btn btn-default" aria-label="Plus"  onclick="adjustScore('right', '1');">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="false"></span>
+                </button>
+                <button type="button" class="btn btn-default" aria-label="Minus"  onclick="adjustScore('right', '-1');">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="false"></span>
+                </button>
             </div>
 
             <div class="col-xs-2 text-center">

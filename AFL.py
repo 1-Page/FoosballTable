@@ -179,7 +179,13 @@ def end_game(timestamp):
 
 @app.route('/goal/<side>', methods=['POST'])
 def goal(side):
-    db.goal(side=side)
+    goal_value(side, value=1)
+    print "Received" + request.data
+    return "OK"
+
+@app.route('/goal/<side>/<value>', methods=['POST'])
+def goal_value(side, value):
+    db.goal(side=side, value=int(value))
     print "Received" + request.data
     return "OK"
 
