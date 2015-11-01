@@ -47,10 +47,12 @@
                     <img src="{{ game.team_left.defense_player.photo }}"/>
                     {{ game.team_left.defense_player.name }}
                 </div>
+                {% if not (game.team_left.defense_player == game.team_left.attack_player) %}
                 <div class="thumbnail">
                     <img src="{{ game.team_left.attack_player.photo }}"/>
                     {{ game.team_left.attack_player.name }}
                 </div>
+                {% endif %}
             </div>
 
             <div class="col-xs-1 text-center">
@@ -106,10 +108,12 @@
                     <img src="{{ game.team_right.attack_player.photo }}"/>
                     {{ game.team_right.attack_player.name }}
                 </div>
+                {% if not (game.team_right.defense_player == game.team_right.attack_player) %}
                 <div class="thumbnail">
                     <img src="{{ game.team_right.defense_player.photo }}"/>
                     {{ game.team_right.defense_player.name }}
                 </div>
+                {% endif %}
             </div>
         </div>
 
