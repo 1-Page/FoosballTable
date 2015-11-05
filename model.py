@@ -310,3 +310,9 @@ class AFL_DB:
         cur.execute("UPDATE games SET ended = :ended WHERE game_id = :game_id",
                     dict(game_id=game.game_id, ended=1))
         self.con.commit()
+
+
+        from stats import StatsDB
+        statsDB = StatsDB(con=self.con)
+        game.ended = 1
+        statsDB.add_game(game=game)

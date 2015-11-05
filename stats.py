@@ -1,4 +1,4 @@
-from model import *
+# from model import Player, Team, Game, AFL_DB
 import math
 import config
 import tools
@@ -179,8 +179,8 @@ class StatsDB:
             score_p_right = 0.5
 
 
-        i_elo_team_left = rating_increment(score_perc=score_p_left, diff_ratings=(elo_team_left - elo_attack_right))
-        i_elo_team_right = rating_increment(score_perc=score_p_right, diff_ratings=(elo_attack_right - elo_team_left))
+        i_elo_team_left = rating_increment(score_perc=score_p_left, diff_ratings=(elo_team_left - elo_team_right))
+        i_elo_team_right = rating_increment(score_perc=score_p_right, diff_ratings=(elo_team_right - elo_team_left))
 
         i_elo_left_players_pos = rating_increment(score_perc=score_p_left, diff_ratings=((elo_attack_left+elo_defense_left) - (elo_attack_right+elo_defense_right)))
         i_elo_right_players_pos = rating_increment(score_perc=score_p_right, diff_ratings=((elo_attack_right+elo_defense_right)-(elo_attack_left+elo_defense_left)))
