@@ -3,6 +3,7 @@ from flask_bootstrap import Bootstrap
 from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
 
 from model import Player, Team, Game, AFL_DB
+from stats import Stats, StatsDB
 import config
 import tools
 
@@ -10,6 +11,7 @@ app = Flask(__name__)
 Bootstrap(app)
 
 db = AFL_DB(database=config.DBNAME)
+statsDB = StatsDB(con=db.con)
 
 app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
 #app.config['UPLOADS_DEFAULT_URL'] = ''
@@ -59,12 +61,16 @@ def players_get_post():
 
     all_players = db.get_all_players()
 
+
     return render_template('players.html', players=all_players)
 
 
 @app.route('/players/<name>')
 def players_name_get(name):
     player = db.get_player_by_name(name=name)
+    player_stats = statsDB.get_stats(player_id=player.player_id)
+    attacker_stats = statsDB.get_stats(attacker_id=player.player_id)
+    defender_stats = statsDB.get_stats(defender_id=player.player_id)
     return render_template('player_page.html', player=player)
 
 

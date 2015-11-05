@@ -75,7 +75,7 @@ class StatsDB:
         cur.execute(s)
         self.con.commit()
 
-    def get_stat(self, player_id=None, attacker_id=None, defender_id=None, team_id=None):
+    def get_stats(self, player_id=None, attacker_id=None, defender_id=None, team_id=None):
         cur = self.con.cursor()
 
         ids_dict = dict(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id)
@@ -87,17 +87,20 @@ class StatsDB:
                 ORDER BY stats_id DESC
             """
         cur.execute(q, ids_dict)
-        stat_exits = cur.fetchone()
-        if not stat_exits:
-            stats = Stats(ids_dict)
+
+        all_stats = list(cur.fetchall())
+
+        if len(all_stats) > 0:
+            stats_list = [Stats(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id,
+                           wins=wins, draws=draws, losses=losses,
+                           goals_pro=goals_pro, goals_against=goals_against, elo_rating=elo_rating, timestamp=timestamp)
+
+                            for player_id, attacker_id, defender_id, team_id, wins, draws, losses, goals_pro, goals_against, elo_rating, timestamp in all_stats]
+
         else:
-            player_id, attacker_id, defender_id, team_id, wins, draws, losses, goals_pro, goals_against, elo_rating, timestamp = stat_exits
+            stats_list = [Stats(ids_dict)]
 
-            stats = Stats(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id,
-                          wins=wins, draws=draws, losses=losses,
-                          goals_pro=goals_pro, goals_against=goals_against, elo_rating=elo_rating, timestamp=timestamp)
-
-        return stats
+        return stats_list
 
 
     def increment_stats(self,
@@ -114,7 +117,7 @@ class StatsDB:
         """
 
         cur = self.con.cursor()
-        stats = self.get_stat(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id)
+        stats = self.get_stat(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id)[0]
 
         stats.update(i_wins=i_wins, i_draws=i_draws, i_losses=i_losses, i_goals_pro=i_goals_pro, i_goals_against=i_goals_against, i_elo_rating=i_elo_rating, timestamp=timestamp)
 
@@ -157,17 +160,17 @@ class StatsDB:
 
         # Get all stats
 
-        elo_team_left = self.get_stat(team_id=game.team_left.team_id).elo_rating
-        elo_team_right = self.get_stat(team_id=game.team_right.team_id).elo_rating
-        elo_attack_left = self.get_stat(attacker_id=game.team_left.attack_player.player_id).elo_rating
-        elo_defense_left = self.get_stat(defender_id=game.team_left.defense_player.player_id).elo_rating
-        elo_attack_right = self.get_stat(attacker_id=game.team_right.attack_player.player_id).elo_rating
-        elo_defense_right = self.get_stat(defender_id=game.team_right.defense_player.player_id).elo_rating
+        elo_team_left = self.get_stat(team_id=game.team_left.team_id)[0].elo_rating
+        elo_team_right = self.get_stat(team_id=game.team_right.team_id)[0].elo_rating
+        elo_attack_left = self.get_stat(attacker_id=game.team_left.attack_player.player_id)[0].elo_rating
+        elo_defense_left = self.get_stat(defender_id=game.team_left.defense_player.player_id)[0].elo_rating
+        elo_attack_right = self.get_stat(attacker_id=game.team_right.attack_player.player_id)[0].elo_rating
+        elo_defense_right = self.get_stat(defender_id=game.team_right.defense_player.player_id)[0].elo_rating
 
-        elo_player_attack_left = self.get_stat(player_id=game.team_left.attack_player.player_id).elo_rating
-        elo_player_defense_left = self.get_stat(player_id=game.team_left.defense_player.player_id).elo_rating
-        elo_player_attack_right = self.get_stat(player_id=game.team_right.attack_player.player_id).elo_rating
-        elo_player_defense_right = self.get_stat(player_id=game.team_right.defense_player.player_id).elo_rating
+        elo_player_attack_left = self.get_stat(player_id=game.team_left.attack_player.player_id)[0].elo_rating
+        elo_player_defense_left = self.get_stat(player_id=game.team_left.defense_player.player_id)[0].elo_rating
+        elo_player_attack_right = self.get_stat(player_id=game.team_right.attack_player.player_id)[0].elo_rating
+        elo_player_defense_right = self.get_stat(player_id=game.team_right.defense_player.player_id)[0].elo_rating
 
         # Score percentages
 
