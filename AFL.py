@@ -71,7 +71,7 @@ def players_name_get(name):
     player_stats = statsDB.get_stats(player_id=player.player_id)
     attacker_stats = statsDB.get_stats(attacker_id=player.player_id)
     defender_stats = statsDB.get_stats(defender_id=player.player_id)
-    return render_template('player_page.html', player=player)
+    return render_template('player_page.html', player=player, player_stats=player_stats, attacker_stats=attacker_stats, defender_stats=defender_stats)
 
 
 @app.route('/players/<name>/edit', methods=['POST', 'GET'])
