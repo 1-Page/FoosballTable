@@ -1,6 +1,47 @@
 {% extends "base.html" %}
 {% import "bootstrap/utils.html" as utils %}
 
+
+{% block head %}
+    {{super()}}
+    <script type="text/javascript"
+          src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version':'1',
+              'packages':['corechart']
+            }]
+          }"></script>
+
+    <script type="text/javascript">
+      google.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Timestamp', 'Elo-Rating'],
+        {% for stat in team_stats %}
+          ['{{ stat.timestamp }}', {{ stat.elo_rating }}],
+        {% endfor %}
+        ]);
+
+        var options = {
+          title: 'Team Elo Rating Performance',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('team_elo'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+
+
+
+{%- endblock %}
+
+
 {% block content %}
 
     <div class="container">
@@ -34,33 +75,43 @@
     </div>
 
     <div class="container">
-        <div class="h2">Team Stats</div>
-        <table class="table table-bordered table-striped">
-            <thead>
-                <td>Timestamp</td>
-                <td>Wins</td>
-                <td>Draws</td>
-                <td>Losses</td>
-                <td>Goals+</td>
-                <td>Goals-</td>
-                <td>Elo</td>
-            </thead>
 
-            {% for stat in team_stats %}
-                <tr>
-                    <td>{{stat.timestamp}}</td>
-                    <td>{{stat.wins}}</td>
-                    <td>{{stat.draws}}</td>
-                    <td>{{stat.losses}}</td>
-                    <td>{{stat.goals_pro}}</td>
-                    <td>{{stat.goals_against}}</td>
-                    <td>{{"%2.2f"%stat.elo_rating}}</td>
-                </tr>
-            {% else %}
-            {% endfor %}
+        <div class="col-xs-7">
+            <div class="h2">Team Stats</div>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <td>Timestamp</td>
+                    <td>Wins</td>
+                    <td>Draws</td>
+                    <td>Losses</td>
+                    <td>Goals+</td>
+                    <td>Goals-</td>
+                    <td>Elo</td>
+                </thead>
+
+                {% for stat in team_stats %}
+                    <tr>
+                        <td>{{stat.timestamp}}</td>
+                        <td>{{stat.wins}}</td>
+                        <td>{{stat.draws}}</td>
+                        <td>{{stat.losses}}</td>
+                        <td>{{stat.goals_pro}}</td>
+                        <td>{{stat.goals_against}}</td>
+                        <td>{{"%2.2f"%stat.elo_rating}}</td>
+                    </tr>
+                {% else %}
+                {% endfor %}
 
 
-        </table>
+            </table>
+        </div>
+
+        <div class="col-xs-5">
+            <div class="h2">Elo Rating</div>
+            <div id="team_elo"></div>
+        </div>
+
+
     </div>
 
 {% endblock %}
