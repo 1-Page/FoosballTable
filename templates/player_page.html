@@ -35,7 +35,7 @@
 
     <div class="container">
         <div class="h2">Player Stats</div>
-        <table>
+        <table class="table table-bordered table-striped">
             <thead>
                 <td>Timestamp</td>
                 <td>Wins</td>
@@ -46,6 +46,7 @@
                 <td>Elo</td>
             </thead>
 
+            <tbody>
             {% for stat in player_stats %}
                 <tr>
                     <td>{{stat.timestamp}}</td>
@@ -54,18 +55,18 @@
                     <td>{{stat.losses}}</td>
                     <td>{{stat.goals_pro}}</td>
                     <td>{{stat.goals_against}}</td>
-                    <td>{{stat.elo_rating}}</td>
+                    <td>{{"%2.2f"%stat.elo_rating}}</td>
                 </tr>
             {% else %}
             {% endfor %}
-
+            </tbody>
 
         </table>
     </div>
 
     <div class="container">
         <div class="h2">Attacker Stats</div>
-        <table>
+        <table class="table table-bordered table-striped">
             <thead>
                 <td>Timestamp</td>
                 <td>Wins</td>
@@ -76,6 +77,7 @@
                 <td>Elo</td>
             </thead>
 
+            <tbody>
             {% for stat in attacker_stats %}
                 <tr>
                     <td>{{stat.timestamp}}</td>
@@ -84,10 +86,11 @@
                     <td>{{stat.losses}}</td>
                     <td>{{stat.goals_pro}}</td>
                     <td>{{stat.goals_against}}</td>
-                    <td>{{stat.elo_rating}}</td>
+                    <td>{{"%2.2f"%stat.elo_rating}}</td>
                 </tr>
             {% else %}
             {% endfor %}
+            </tbody>
 
 
         </table>
@@ -95,7 +98,7 @@
 
     <div class="container">
         <div class="h2">Defender Stats</div>
-        <table>
+        <table class="table table-bordered table-striped">
             <thead>
                 <td>Timestamp</td>
                 <td>Wins</td>
@@ -106,6 +109,7 @@
                 <td>Elo</td>
             </thead>
 
+            <tbody>
             {% for stat in defender_stats %}
                 <tr>
                     <td>{{stat.timestamp}}</td>
@@ -114,11 +118,11 @@
                     <td>{{stat.losses}}</td>
                     <td>{{stat.goals_pro}}</td>
                     <td>{{stat.goals_against}}</td>
-                    <td>{{stat.elo_rating}}</td>
+                    <td>{{"%2.2f"%stat.elo_rating}}</td>
                 </tr>
             {% else %}
             {% endfor %}
-
+            </tbody>
 
         </table>
     </div>

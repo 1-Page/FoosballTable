@@ -5,13 +5,13 @@ import tools
 
 
 # We = 1/ (10 (-D/F) + 1);
-def wining_expectancy(difference_weight):
-    return 1.0 / (math.pow(10.0, -difference_weight / config.F) + 1)
+def wining_expectancy(diff_ratings):
+    return 1.0 / (math.pow(10.0, -diff_ratings / config.F) + 1)
 
 
 # Rn = Ro + K(S-We)
 def rating_increment(score_perc, diff_ratings):
-    return config.K * (score_perc * wining_expectancy(diff_ratings))
+    return config.K * (score_perc - wining_expectancy(diff_ratings))
 
 
 class Stats:
@@ -75,17 +75,35 @@ class StatsDB:
         cur.execute(s)
         self.con.commit()
 
-    def get_stats(self, player_id=None, attacker_id=None, defender_id=None, team_id=None):
+    def get_stats(self, player_id=None, attacker_id=None, defender_id=None, team_id=None, limit=None):
         cur = self.con.cursor()
 
+        assert 1 == (player_id is not None) + (attacker_id is not None) + (defender_id is not None) + (team_id is not None), "Use only one of these (player_id, attacker_id, defender_id, team_id)"
+
         ids_dict = dict(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id)
+
+        if player_id:
+            s_id = "player_id"
+        elif attacker_id:
+            s_id = "attacker_id"
+        elif defender_id:
+            s_id = "defender_id"
+        elif team_id:
+            s_id = "team_id"
+        else:
+            pass # will never happen
+            raise Exception("Assert failed, this should never happen")
 
         q = """
                 SELECT player_id, attacker_id, defender_id, team_id, wins, draws, losses, goals_pro, goals_against, elo_rating, timestamp
                 FROM STATS
-                WHERE player_id=:player_id AND attacker_id=:attacker_id AND defender_id=:defender_id AND team_id=:team_id
+                WHERE {s_id}=:{s_id}
                 ORDER BY stats_id DESC
-            """
+            """.format(s_id=s_id)
+
+        if limit:
+            q += " LIMIT {limit}".format(limit=limit)
+
         cur.execute(q, ids_dict)
 
         all_stats = list(cur.fetchall())
@@ -117,7 +135,7 @@ class StatsDB:
         """
 
         cur = self.con.cursor()
-        stats = self.get_stats(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id)[0]
+        stats = self.get_stats(player_id=player_id, attacker_id=attacker_id, defender_id=defender_id, team_id=team_id, limit=1)[0]
 
         stats.update(i_wins=i_wins, i_draws=i_draws, i_losses=i_losses, i_goals_pro=i_goals_pro, i_goals_against=i_goals_against, i_elo_rating=i_elo_rating, timestamp=timestamp)
 
@@ -156,21 +174,21 @@ class StatsDB:
         game.score_right = score_right
         """
 
-        stats_timestamp = tools.get_timestamp_for_now()
+        stats_timestamp = game.timestamp
 
         # Get all stats
 
-        elo_team_left = self.get_stats(team_id=game.team_left.team_id)[0].elo_rating
-        elo_team_right = self.get_stats(team_id=game.team_right.team_id)[0].elo_rating
-        elo_attack_left = self.get_stats(attacker_id=game.team_left.attack_player.player_id)[0].elo_rating
-        elo_defense_left = self.get_stats(defender_id=game.team_left.defense_player.player_id)[0].elo_rating
-        elo_attack_right = self.get_stats(attacker_id=game.team_right.attack_player.player_id)[0].elo_rating
-        elo_defense_right = self.get_stats(defender_id=game.team_right.defense_player.player_id)[0].elo_rating
+        elo_team_left = self.get_stats(team_id=game.team_left.team_id, limit=1)[0].elo_rating
+        elo_team_right = self.get_stats(team_id=game.team_right.team_id, limit=1)[0].elo_rating
+        elo_attack_left = self.get_stats(attacker_id=game.team_left.attack_player.player_id, limit=1)[0].elo_rating
+        elo_defense_left = self.get_stats(defender_id=game.team_left.defense_player.player_id, limit=1)[0].elo_rating
+        elo_attack_right = self.get_stats(attacker_id=game.team_right.attack_player.player_id, limit=1)[0].elo_rating
+        elo_defense_right = self.get_stats(defender_id=game.team_right.defense_player.player_id, limit=1)[0].elo_rating
 
-        elo_player_attack_left = self.get_stats(player_id=game.team_left.attack_player.player_id)[0].elo_rating
-        elo_player_defense_left = self.get_stats(player_id=game.team_left.defense_player.player_id)[0].elo_rating
-        elo_player_attack_right = self.get_stats(player_id=game.team_right.attack_player.player_id)[0].elo_rating
-        elo_player_defense_right = self.get_stats(player_id=game.team_right.defense_player.player_id)[0].elo_rating
+        elo_player_attack_left = self.get_stats(player_id=game.team_left.attack_player.player_id, limit=1)[0].elo_rating
+        elo_player_defense_left = self.get_stats(player_id=game.team_left.defense_player.player_id, limit=1)[0].elo_rating
+        elo_player_attack_right = self.get_stats(player_id=game.team_right.attack_player.player_id, limit=1)[0].elo_rating
+        elo_player_defense_right = self.get_stats(player_id=game.team_right.defense_player.player_id, limit=1)[0].elo_rating
 
         # Score percentages
 
@@ -191,8 +209,6 @@ class StatsDB:
         i_elo_left_players_ind = rating_increment(score_perc=score_p_left, diff_ratings=((elo_player_attack_left+elo_player_defense_left) - (elo_player_attack_right+elo_player_defense_right)))
         i_elo_right_players_ind = rating_increment(score_perc=score_p_right, diff_ratings=((elo_player_attack_right+elo_player_defense_right) - (elo_player_attack_left+elo_player_defense_left)))
 
-        # Fixed timestamp per game/stats
-        timestamp=tools.get_timestamp_for_now()
 
         # Increments for left or right teams
         left_dict_goals_increment = dict(i_wins=int(game.score_left>game.score_right),
@@ -200,14 +216,14 @@ class StatsDB:
                                          i_losses=int(game.score_left<game.score_right),
                                          i_goals_pro=game.score_left,
                                          i_goals_against=game.score_right,
-                                         timestamp=timestamp)
+                                         timestamp=stats_timestamp)
 
         right_dict_goals_increment = dict(i_wins=int(game.score_right>game.score_left),
                                           i_draws=int(game.score_left==game.score_right),
                                           i_losses=int(game.score_right<game.score_left),
                                           i_goals_pro=game.score_right,
                                           i_goals_against=game.score_left,
-                                          timestamp=timestamp)
+                                          timestamp=stats_timestamp)
 
 
 
@@ -239,16 +255,28 @@ class StatsDB:
                              i_elo_rating=i_elo_left_players_ind,
                              **left_dict_goals_increment)
 
-        self.increment_stats(player_id=game.team_left.defense_player.player_id,
-                             i_elo_rating=i_elo_left_players_ind,
-                             **left_dict_goals_increment)
+        if game.team_left.attack_player.player_id != game.team_left.defense_player.player_id:
+            self.increment_stats(player_id=game.team_left.defense_player.player_id,
+                                 i_elo_rating=i_elo_left_players_ind,
+                                 **left_dict_goals_increment)
 
         self.increment_stats(player_id=game.team_right.attack_player.player_id,
                              i_elo_rating=i_elo_right_players_ind,
                              **right_dict_goals_increment)
 
-        self.increment_stats(player_id=game.team_right.defense_player.player_id,
-                             i_elo_rating=i_elo_right_players_ind,
-                             **right_dict_goals_increment)
+        if game.team_right.attack_player.player_id != game.team_right.defense_player.player_id:
+            self.increment_stats(player_id=game.team_right.defense_player.player_id,
+                                 i_elo_rating=i_elo_right_players_ind,
+                                 **right_dict_goals_increment)
 
+
+
+    def recalculate_stats(self, games):
+        cur = self.con.cursor()
+
+        cur.execute("DELETE FROM STATS")
+        self.con.commit()
+
+        for game in games:
+            self.add_game(game=game)
 

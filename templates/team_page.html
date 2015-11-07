@@ -33,4 +33,34 @@
 
     </div>
 
+    <div class="container">
+        <div class="h2">Team Stats</div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <td>Timestamp</td>
+                <td>Wins</td>
+                <td>Draws</td>
+                <td>Losses</td>
+                <td>Goals+</td>
+                <td>Goals-</td>
+                <td>Elo</td>
+            </thead>
+
+            {% for stat in team_stats %}
+                <tr>
+                    <td>{{stat.timestamp}}</td>
+                    <td>{{stat.wins}}</td>
+                    <td>{{stat.draws}}</td>
+                    <td>{{stat.losses}}</td>
+                    <td>{{stat.goals_pro}}</td>
+                    <td>{{stat.goals_against}}</td>
+                    <td>{{"%2.2f"%stat.elo_rating}}</td>
+                </tr>
+            {% else %}
+            {% endfor %}
+
+
+        </table>
+    </div>
+
 {% endblock %}

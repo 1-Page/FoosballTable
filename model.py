@@ -53,8 +53,9 @@ class Game(object):
         return tools.seconds_string(self.time_left())
 
     def game_should_end(self):
-        should_end = ((self.score_left >= config.GAME_GOAL_LIMIT) or (self.score_right >= config.GAME_GOAL_LIMIT)) or \
-                     (self.time_left() < 0)
+        should_end = (not self.ended) and ((((self.score_left >= config.GAME_GOAL_LIMIT) or \
+                                             (self.score_right >= config.GAME_GOAL_LIMIT)) or \
+                                            (self.time_left() < 0)))
 
         if should_end:
             self.ended = 1

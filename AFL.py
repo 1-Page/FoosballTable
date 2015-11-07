@@ -130,7 +130,8 @@ def teams_get():
 @app.route('/teams/<team_id>', methods=['GET'])
 def teams_name_get(team_id):
     team = db.get_team(team_id=team_id)
-    return render_template('team_page.html', team=team)
+    team_stats = statsDB.get_stats(team_id=team_id)
+    return render_template('team_page.html', team=team, team_stats=team_stats)
 
 
 @app.route('/games', methods=['GET', 'POST'])
@@ -203,6 +204,13 @@ def is_game_on():
         return "Yes"
     else:
         return "No"
+
+
+@app.route('/stats', methods=['GET'])
+def redo_stats():
+    all_games = db.get_all_games()
+    statsDB.recalculate_stats(all_games)
+    return "Stats recalculated"
 
 
 photos = UploadSet('photos', IMAGES)
