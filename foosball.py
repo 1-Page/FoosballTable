@@ -2,16 +2,15 @@ from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask.ext.uploads import UploadSet, IMAGES, configure_uploads, UploadNotAllowed
 
-from model import Player, Team, Game, AFL_DB
-from stats import Stats, StatsDB
+from models import Player, Team, Game, Stats
+from db_access import DBAccess
 import config
 import tools
 
 app = Flask(__name__)
 Bootstrap(app)
 
-db = AFL_DB(database=config.DBNAME)
-statsDB = StatsDB(con=db.con)
+db = DBAccess(database=config.DBNAME)
 
 app.config['UPLOADS_DEFAULT_DEST'] = 'static/uploads'
 #app.config['UPLOADS_DEFAULT_URL'] = ''
@@ -68,9 +67,9 @@ def players_get_post():
 @app.route('/players/<name>')
 def players_name_get(name):
     player = db.get_player_by_name(name=name)
-    player_stats = statsDB.get_stats(player_id=player.player_id)
-    attacker_stats = statsDB.get_stats(attacker_id=player.player_id)
-    defender_stats = statsDB.get_stats(defender_id=player.player_id)
+    player_stats = db.get_all_stats(player_id=player.player_id)
+    attacker_stats = db.get_all_stats(attack_player_id=player.player_id)
+    defender_stats = db.get_all_stats(defense_player_id=player.player_id)
     return render_template('player_page.html', player=player, player_stats=player_stats, attacker_stats=attacker_stats, defender_stats=defender_stats)
 
 
@@ -130,7 +129,7 @@ def teams_get():
 @app.route('/teams/<team_id>', methods=['GET'])
 def teams_name_get(team_id):
     team = db.get_team(team_id=team_id)
-    team_stats = statsDB.get_stats(team_id=team_id)
+    team_stats = db.get_all_stats(team_id=team_id)
     return render_template('team_page.html', team=team, team_stats=team_stats)
 
 
@@ -145,16 +144,13 @@ def games_get_post():
         right_attack_player_name = request.form['right_attack_player_name']
 
         timestamp = tools.get_timestamp_for_now()
-        team_left = db.create_team(defense_player=db.get_player_by_name(left_defense_player_name),
+        left_team = db.create_team(defense_player=db.get_player_by_name(left_defense_player_name),
                                    attack_player=db.get_player_by_name(left_attack_player_name))
-        team_right = db.create_team(defense_player=db.get_player_by_name(right_defense_player_name),
+        right_team = db.create_team(defense_player=db.get_player_by_name(right_defense_player_name),
                                     attack_player=db.get_player_by_name(right_attack_player_name))
 
-        print "RIGHT", team_right.summary()
-        print "LEFT", team_left.summary()
-
-        game = db.create_update_game(timestamp=timestamp, team_left=team_left, team_right=team_right)
-        return redirect(url_for('games_get', timestamp=timestamp))
+        game = db.create_update_game(timestamp=timestamp, left_team=left_team, right_team=right_team)
+        return redirect(url_for('games_get', timestamp=game.timestamp))
 
     else:
         all_games = db.get_all_games()
@@ -171,7 +167,7 @@ def games_get(timestamp):
 @app.route('/games/ajax/<timestamp>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def games_get_score_and_time(timestamp):
     game = db.get_game_by_timestamp(timestamp)
-    output = {'score': "{} x {}".format(game.score_left, game.score_right),
+    output = {'score': "{} x {}".format(game.left_score, game.right_score),
               'time': game.time_left_string(),
               'ended': bool(game.ended)}
     return jsonify(output)
@@ -206,15 +202,15 @@ def is_game_on():
         return "No"
 
 
-@app.route('/stats', methods=['GET'])
+
+@app.route('/redo_stats', methods=['GET'])
 def redo_stats():
     all_games = db.get_all_games()
-    statsDB.recalculate_stats(all_games)
+    db.recalculate_stats(all_games)
     return "Stats recalculated"
 
 
 photos = UploadSet('photos', IMAGES)
-
 
 @app.route('/photo/<id>')
 def show(id):

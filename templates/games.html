@@ -45,7 +45,7 @@
                 <div class="picker">
                 <select name="right_attack_player_name" id="rightAttack" class="form-control image-picker">
                         {% for player in players %}
-                            {% if (game is defined) and (player.name == game.team_right.attack_player.name) %}
+                            {% if (game is defined) and (player.name == game.right_team.attack_player.name) %}
                                 <option data-img-src="{{player.photo}}"name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
                             {% else %}
                                 <option data-img-src="{{player.photo}}"name="{{ player.name  }}">{{ player.name|safe  }}</option>
@@ -60,7 +60,7 @@
                 <div class="picker">
                 <select name="right_defense_player_name" id="rightDefense" class="form-control image-picker">
                         {% for player in players %}
-                            {% if (game is defined) and (player.name == game.team_right.defense_player.name) %}
+                            {% if (game is defined) and (player.name == game.right_team.defense_player.name) %}
                                 <option data-img-src="{{player.photo}}"name="{{ player.name  }}" SELECTED>{{ player.name|safe  }}</option>
                             {% else %}
                                 <option data-img-src="{{player.photo}}"name="{{ player.name  }}">{{ player.name|safe  }}</option>
