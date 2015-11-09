@@ -111,6 +111,8 @@ class Stats:
 
         self.timestamp = timestamp
 
+    def elo_rating_str(self):
+        return "%2.0f"%self.elo_rating
 
     def update(self, i_wins=0, i_draws=0, i_losses=0, i_goals_pro=0, i_goals_against=0, i_elo_rating=0, timestamp=tools.get_timestamp_for_now()):
         self.wins += i_wins

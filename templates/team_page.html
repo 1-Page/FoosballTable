@@ -20,7 +20,7 @@
         var data = google.visualization.arrayToDataTable([
           ['Timestamp', 'Elo-Rating'],
         {% for stat in team_stats %}
-          ['{{ stat.timestamp }}', {{ stat.elo_rating }}],
+          ['{{ stat.timestamp }}', {{ stat.elo_rating_str() }}],
         {% endfor %}
         ]);
 
@@ -97,7 +97,7 @@
                         <td>{{stat.losses}}</td>
                         <td>{{stat.goals_pro}}</td>
                         <td>{{stat.goals_against}}</td>
-                        <td>{{"%2.2f"%stat.elo_rating}}</td>
+                        <td>{{stat.elo_rating_str()}}</td>
                     </tr>
                 {% else %}
                 {% endfor %}
