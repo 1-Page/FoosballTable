@@ -5,6 +5,7 @@ import elo
 
 import sqlite3 as lite
 
+import config
 
 
 class DBAccess:
@@ -184,6 +185,15 @@ class DBAccess:
                      left_score=left_score, right_score=right_score, ended=ended)
                 for game_id, timestamp, left_team_id, right_team_id, left_score, right_score, ended in all_games]
 
+    def delete_game_by_timestamp(self, timestamp):
+        cur = self.con.cursor()
+        cur.execute("DELETE FROM games WHERE timestamp=:timestamp", dict(timestamp=timestamp))
+        self.con.commit()
+        self.recalculate_stats()
+
+
+
+
     def get_game_by_timestamp(self, timestamp):
         cur = self.con.cursor()
 
@@ -317,7 +327,7 @@ class DBAccess:
                          elo_rating=elo_rating, timestamp=timestamp)
 
         else:
-            return None
+           return None
 
 
 
@@ -344,7 +354,7 @@ class DBAccess:
         q = """ SELECT player_id, attack_player_id, defense_player_id, team_id, wins, draws, losses, goals_pro, goals_against, elo_rating, timestamp
                 FROM STATS
                 WHERE {s_id}=:{s_id}
-                ORDER BY stats_id DESC
+                ORDER BY timestamp DESC
             """.format(s_id=s_id)
 
         if limit:
@@ -367,8 +377,8 @@ class DBAccess:
         return stats_list
 
 
-    def add_first_stats(self, player_id=None, attack_player_id=None, defense_player_id=None, team_id=None):
-        return self.increment_stats(player_id=player_id, attack_player_id=attack_player_id, defense_player_id=defense_player_id, team_id=team_id)
+    def add_first_stats(self, player_id=None, attack_player_id=None, defense_player_id=None, team_id=None, timestamp=tools.get_timestamp_for_now()):
+        return self.increment_stats(player_id=player_id, attack_player_id=attack_player_id, defense_player_id=defense_player_id, team_id=team_id, timestamp=timestamp)
 
     def increment_stats(self,
                         player_id=None,
@@ -518,12 +528,30 @@ class DBAccess:
 
 
 
-    def recalculate_stats(self, games):
+    def recalculate_stats(self):
         cur = self.con.cursor()
 
         cur.execute("DELETE FROM STATS")
         self.con.commit()
 
+        players = self.get_all_players()
+        for player in players:
+            player_stats = self.add_first_stats(player_id=player.player_id, timestamp=config.FIRST_TIMESTAMP)
+            attack_stats = self.add_first_stats(attack_player_id=player.player_id, timestamp=config.FIRST_TIMESTAMP)
+            defense_stats = self.add_first_stats(defense_player_id=player.player_id, timestamp=config.FIRST_TIMESTAMP)
+
+            self.update_player_stats(player_id=player.player_id,
+                                     player_stats_id=player_stats.stats_id,
+                                     attack_stats_id=attack_stats.stats_id,
+                                     defense_stats_id=defense_stats.stats_id)
+
+
+        teams = self.get_all_teams()
+        for team in teams:
+            team_stats = self.add_first_stats(team_id=team.team_id, timestamp=config.FIRST_TIMESTAMP)
+            self.update_team_stats(team_id=team.team_id, team_stats_id=team_stats.stats_id)
+
+        games = reversed(self.get_all_games())
         for game in games:
             self.add_stats_game(game=game)
 

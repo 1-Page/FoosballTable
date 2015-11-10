@@ -94,31 +94,7 @@ def player_name_edit(name):
                 photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
 
     edited_player = db.edit_player(player_name=name, new_player_name=new_name, new_player_photo=photoUrl)
-    return redirect(url_for('players_name_get', name=new_name))
-
-@app.route('/players/<name>/delete', methods=['POST'])
-def player_name_delete(name):
-    if request.method == 'GET':
-        redirect(url_for('players_name_get', name=name))
-
-    player = db.get_player_by_name(name=name)
-
-
-    new_name = request.form['name']
-    photoUrl = player.photo
-    if 'photo' in request.files:
-        fileStorage = request.files['photo']
-        if fileStorage.filename != "":
-            try:
-                photoName = photos.save(fileStorage)
-                photoUrl = photos.url(photoName)
-            except UploadNotAllowed:
-                #return to default if wrong file is given
-                photoUrl = url_for('static', filename=config.DEFAULT_IMAGE)
-
-    edited_player = db.edit_player(player_name=name, new_player_name=new_name, new_player_photo=photoUrl)
-    return render_template('player_page.html', player=edited_player)
-
+    return redirect(url_for('players_name_get', name=edited_player.name))
 
 @app.route('/teams')
 def teams_get():
@@ -161,7 +137,18 @@ def games_get_post():
 def games_get(timestamp):
     all_players = db.get_all_players()
     game = db.get_game_by_timestamp(timestamp)
-    return render_template('game.html', game=game, players=all_players)
+    return render_template('game_page.html', game=game, players=all_players)
+
+
+@app.route('/games/<timestamp>/delete', methods=['POST'])
+def game_timestamp_delete(timestamp):
+    if request.method == 'GET':
+        redirect(url_for('games_get', timestamp=timestamp))
+
+    db.delete_game_by_timestamp(timestamp)
+    return redirect(url_for('games_get_post'))
+
+
 
 
 @app.route('/games/ajax/<timestamp>', methods=['GET', 'PUT', 'DELETE', 'POST'])
@@ -205,8 +192,7 @@ def is_game_on():
 
 @app.route('/redo_stats', methods=['GET'])
 def redo_stats():
-    all_games = db.get_all_games()
-    db.recalculate_stats(all_games)
+    db.recalculate_stats()
     return "Stats recalculated"
 
 

@@ -89,20 +89,21 @@
                     <div class="btn btn-lg btn-success center-block end_game_btn">
                         <a href="{{ url_for('end_game', timestamp=game.timestamp)  }}">End Game</a>
                     </div>
-
                 </div>
                 {% else %}
                   <div class="text-center h3">
-                  <hr/>
-                    <span class="timestamp">
-                        <a href={{ url_for('games_get', timestamp=game.timestamp) }}>
-                            {{ game.timestamp }}
-                        </a>
-                    </span>
+                    <hr/>
                     <span class="summary">
                          {{  game.summary() }}
                     </span>
+                    <hr/>
+
+                    <form action="{{ url_for('game_timestamp_delete', timestamp=game.timestamp) }}" method=post>
+                        <input type=submit value="Delete game" class="btn btn-lg btn-danger end_game_btn center-block">
+                    </form>
+
                   </div>
+
                 {% endif %}
             </div>
 
