@@ -15,13 +15,13 @@
             <div class="h3">Player</div>
             <div class="row">
               {% for pos, player in players_ranking %}
+                  <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                 <div class="thumbnail col-md-12 col-xs-12">
                     <a href="{{ url_for('players_name_get', name=player.name) }}">
                         <img src="{{ player.photo }}" class="player" alt="{{ player.name|safe }}" />
                         <div class="caption post-content h3 text-center">
                             {{ player.name }}
                         </div>
-                        <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                     </a>
                 </div>
               {% else %}
@@ -35,13 +35,13 @@
             <div class="h3">Attack</div>
             <div class="row">
               {% for pos, player in attack_ranking %}
+                  <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                 <div class="thumbnail col-md-12 col-xs-12">
                     <a href="{{ url_for('players_name_get', name=player.name) }}">
                         <img src="{{ player.photo }}" class="player" alt="{{ player.name|safe }}" />
                         <div class="caption post-content h3 text-center">
                             {{ player.name }}
                         </div>
-                        <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                     </a>
                 </div>
               {% else %}
@@ -56,13 +56,13 @@
             <div class="h3">Defense</div>
             <div class="row">
               {% for pos, player in defense_ranking %}
+                  <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                 <div class="thumbnail col-md-12 col-xs-12">
                     <a href="{{ url_for('players_name_get', name=player.name) }}">
                         <img src="{{ player.photo }}" class="player" alt="{{ player.name|safe }}" />
                         <div class="caption post-content h3 text-center">
                             {{ player.name }}
                         </div>
-                        <div class="caption text-center">{{ pos+1 }}: {{ player.player_stats.elo_rating_str() }}</div>
                     </a>
                 </div>
               {% else %}
@@ -76,10 +76,11 @@
             <div class="h3">Team</div>
             <div class="row">
               {% for pos, team in team_ranking %}
+                  <div class="caption text-center">{{ pos+1 }}: {{ team.team_stats.elo_rating_str() }}</div>
                 <div class="thumbnail col-md-6 col-xs-6">
                     <a href="{{ url_for('players_name_get', name=team.defense_player.name) }}">
                         <img src="{{ team.defense_player.photo }}" class="player" alt="{{ team.defense_player.name|safe }}" />
-                        <div class="caption post-content h3 text-center">
+                        <div class="caption post-content h4 text-center">
                             {{ team.defense_player.name }}
                         </div>
                     </a>
@@ -87,12 +88,12 @@
                 <div class="thumbnail col-md-6 col-xs-6">
                     <a href="{{ url_for('players_name_get', name=team.attack_player.name) }}">
                         <img src="{{ team.attack_player.photo }}" class="player" alt="{{ team.attack_player.name|safe }}" />
-                        <div class="caption post-content h3 text-center">
+                        <div class="caption post-content h4 text-center">
                             {{ team.attack_player.name }}
                         </div>
                     </a>
                 </div>
-                <div class="caption text-center">{{ pos+1 }}: {{ team.team_stats.elo_rating_str() }}</div>
+
               {% else %}
                 <em>Unbelievable.  No teams, please add</em>
               {% endfor %}
