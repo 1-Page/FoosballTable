@@ -192,12 +192,12 @@ def is_game_on():
 def stats_get():
     all_players = db.get_all_players()
 
-    players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating)))
-    attack_ranking = list(enumerate(sorted(all_players, key=lambda p: p.attack_stats.elo_rating)))
-    defense_ranking = list(enumerate(sorted(all_players, key=lambda p: p.defense_stats.elo_rating)))
+    players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating, reverse=True)))
+    attack_ranking = list(enumerate(sorted(all_players, key=lambda p: p.attack_stats.elo_rating, reverse=True)))
+    defense_ranking = list(enumerate(sorted(all_players, key=lambda p: p.defense_stats.elo_rating, reverse=True)))
 
     all_teams = db.get_all_teams()
-    team_ranking = list(enumerate(sorted(all_teams, key=lambda t: t.team_stats.elo_rating)))
+    team_ranking = list(enumerate(sorted(all_teams, key=lambda t: t.team_stats.elo_rating, reverse=True)))
     return render_template('stats_page.html', players_ranking=players_ranking, attack_ranking=attack_ranking, defense_ranking=defense_ranking, team_ranking=team_ranking)
 
 
