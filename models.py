@@ -66,6 +66,26 @@ class Game(object):
 
         return should_end
 
+    def predicted_score(self):
+
+
+        elo_left = (self.left_team.defense_player.player_stats.elo_rating + self.left_team.attack_player.player_stats.elo_rating)
+        elo_right = (self.right_team.defense_player.player_stats.elo_rating + self.right_team.attack_player.player_stats.elo_rating)
+        #diff = self.left_team.team_stats.elo_rating - self.right_team.team_stats.elo_rating
+        diff = elo_left - elo_right
+
+        expected = elo.wining_expectancy(diff)
+        if expected > 0.5:
+            predicted_right_score = int(round(config.GAME_GOAL_LIMIT * ((1.0-expected) / expected)))
+            predicted_left_score = 10
+        else:
+            predicted_right_score = 10
+            predicted_left_score = int(round(config.GAME_GOAL_LIMIT * (expected / (1.0-expected))))
+
+
+        return "{left} x {right}".format(left=predicted_left_score, right=predicted_right_score)
+
+
     def summary(self):
         sum_dict = dict(tleft=self.left_team.summary(), tright=self.right_team.summary(), sleft=self.left_score, sright=self.right_score)
 

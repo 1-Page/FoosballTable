@@ -83,8 +83,9 @@
                 <div class="text-center h1">
                     <div class="time">
                         Time left: <span id="time_left">{{ game.time_left_string() }}</span>
+                        <br/>
+                        <span class="h4">Predicted Score:<br/>{{ game.predicted_score() }}</span>
                     </div>
-
 
                     <div class="btn btn-lg btn-success center-block end_game_btn">
                         <a href="{{ url_for('end_game', timestamp=game.timestamp)  }}">End Game</a>
