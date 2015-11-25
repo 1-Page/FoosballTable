@@ -3,24 +3,14 @@
 #include "RestClient.h"
 
 
-#define LEFT_LIGHT_SENSOR A0
-#define RIGHT_LIGHT_SENSOR A2
-
-#define LEFT_LASER_LIGHT 9
-#define RIGHT_LASER_LIGHT 10
+#define LEFT_PROXIMITY_SENSOR 2
+#define RIGHT_PROXIMITY_SENSOR 4
 
 #define BOARD_LIGHT 13
-
-#define CALIBRATION_REPEATS 100
-#define CALIBRATION_DELAY 10
-#define CALIBRATE_EVERY_MSECONDS 1000*60*2 //2 minutes
-
-#define BALL_REFLECTION_FACTOR 50
 
 #define MINIMUM_TIME_BETWEEN_GOALS 5000 // 5 seconds
 #define MINIMUM_TIME_GAME_ON_CHECK 15000 // 15 seconds
 #define MINIMUM_TIME_GAME_OFF_CHECK 120000 // 2 minutes
-
 
 #define LEFT_SIDE 0
 #define RIGHT_SIDE 1
@@ -35,52 +25,10 @@ const char pageNameIsGameOn[] = "/is_game_on";
 
 RestClient client = RestClient(serverName, serverPort);
 
-
-
-int leftCurrentLightLevel; 
-int rightCurrentLightLevel;
-
-int leftLightLevelMax;
-int rightLightLevelMax;
-
 unsigned long last_goal_time = 0;
 unsigned long last_game_on_check = 0;
-unsigned long last_calibration = 0;
 
 byte game_is_on = 1;
-
-void all_laser_control(uint8_t power) {
-  digitalWrite(LEFT_LASER_LIGHT, power);   
-  digitalWrite(RIGHT_LASER_LIGHT, power);  
-}
-
-void calibrate() {
-  Serial.print("Calibrating ...");
-  int leftLevelMax = 0;
-  int rightLevelMax = 0;  
-
-  all_laser_control(HIGH);
-  for (int i=0; i<CALIBRATION_REPEATS; i++) {
-    delay(CALIBRATION_DELAY);
-    int level = analogRead(LEFT_LIGHT_SENSOR);
-    if (level > leftLevelMax) {
-      leftLevelMax = level;
-    }
-    
-    level = analogRead(RIGHT_LIGHT_SENSOR);
-    if (level > leftLevelMax) {
-      rightLevelMax = level;
-    }
-  }
-
-  leftLightLevelMax = leftLevelMax;
-  rightLightLevelMax = rightLevelMax;
-
-  Serial.println("Done ...");
-  if (game_is_on == 0) {
-    all_laser_control(LOW);
-  }
-}
 
 
 void setup()
@@ -98,22 +46,13 @@ void setup()
 */
 
   pinMode(BOARD_LIGHT, OUTPUT);
-  pinMode(LEFT_LASER_LIGHT, OUTPUT);
   
-  calibrate();
   unsigned long now = millis();
-  last_calibration = now;
-  Serial.print("Left:");
-  Serial.print(leftLightLevelMax, DEC);
-  Serial.print("Right:");
-  Serial.print(rightLightLevelMax, DEC);
 
   check_game_on();
   last_game_on_check = now;
 
-  last_goal_time = now - MINIMUM_TIME_BETWEEN_GOALS;
-  
-  all_laser_control(HIGH);
+  last_goal_time = now - MINIMUM_TIME_BETWEEN_GOALS;  
 }
 
 void send_goal(int side) {
@@ -147,12 +86,8 @@ void check_game_on() {
   Serial.println(response);
 
   if (response == String("Yes")) {
-    Serial.println(F("LASER ON."));
-    all_laser_control(HIGH);
     game_is_on = 1;
   } else {
-    Serial.println(F("LASER OFF."));
-    all_laser_control(LOW);
     game_is_on = 0;
   }
 }
@@ -165,11 +100,11 @@ byte check_goal() {
   byte left_goal = 0;
   byte right_goal = 0;
 
-  if (leftCurrentLightLevel > (leftLightLevelMax + BALL_REFLECTION_FACTOR)) {
+  if (digitalRead (LEFT_PROXIMITY_SENSOR) == LOW) {
     left_goal = 1;
   }
 
-  if (rightCurrentLightLevel > (rightLightLevelMax + BALL_REFLECTION_FACTOR)) {
+  if (digitalRead (RIGHT_PROXIMITY_SENSOR) == LOW) {
     right_goal = 1;
   }
 
@@ -196,11 +131,6 @@ void loop()
 {
   unsigned long now = millis();
 
-  if (abs(now - last_calibration) > CALIBRATE_EVERY_MSECONDS) {
-    calibrate();
-    last_calibration = now;
-  }
-
   if (game_is_on) {
     /*
     Serial.print("now: ");
@@ -221,9 +151,6 @@ void loop()
     }        
    
   
-    leftCurrentLightLevel = analogRead(LEFT_LIGHT_SENSOR);
-    rightCurrentLightLevel = analogRead(RIGHT_LIGHT_SENSOR);
-
     if (abs(now - last_goal_time) > MINIMUM_TIME_BETWEEN_GOALS) {
       if (check_goal()) {
         last_goal_time = now;
@@ -242,13 +169,11 @@ void loop()
 
 void loop_test() 
 {
-  all_laser_control(HIGH);  
-  //delay(200);
-  leftCurrentLightLevel = analogRead(LEFT_LIGHT_SENSOR);
-  rightCurrentLightLevel = analogRead(RIGHT_LIGHT_SENSOR);
+  byte leftProxValue = digitalRead (LEFT_PROXIMITY_SENSOR);
+  byte rightProxValue = digitalRead (RIGHT_PROXIMITY_SENSOR);
   Serial.print("Left: ");
-  Serial.print(leftCurrentLightLevel, DEC);
+  Serial.print(leftProxValue == LOW);
   Serial.print("\tRight: ");
-  Serial.println(rightCurrentLightLevel, DEC);
+  Serial.println(rightProxValue == LOW);
 
 }
