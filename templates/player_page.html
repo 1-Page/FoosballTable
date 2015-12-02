@@ -84,8 +84,10 @@
                     <td>Wins</td>
                     <td>Draws</td>
                     <td>Losses</td>
+                    <td>Win %</td>
                     <td>Goals+</td>
                     <td>Goals-</td>
+                    <td>Goal Ratio</td>
                     <td>Elo</td>
                 </thead>
 
@@ -96,8 +98,10 @@
                         <td>{{stat.wins}}</td>
                         <td>{{stat.draws}}</td>
                         <td>{{stat.losses}}</td>
+                        <td>{{stat.perc_win_str()}}</td>
                         <td>{{stat.goals_pro}}</td>
                         <td>{{stat.goals_against}}</td>
+                        <td>{{stat.goal_ratio_str()}}</td>
                         <td>{{stat.elo_rating_str()}}</td>
                     </tr>
                 {% else %}
@@ -125,8 +129,10 @@
                     <td>Wins</td>
                     <td>Draws</td>
                     <td>Losses</td>
+                    <td>Win %</td>
                     <td>Goals+</td>
                     <td>Goals-</td>
+                    <td>Goal Ratio</td>
                     <td>Elo</td>
                 </thead>
 
@@ -137,14 +143,15 @@
                         <td>{{stat.wins}}</td>
                         <td>{{stat.draws}}</td>
                         <td>{{stat.losses}}</td>
+                        <td>{{stat.perc_win_str()}}</td>
                         <td>{{stat.goals_pro}}</td>
                         <td>{{stat.goals_against}}</td>
+                        <td>{{stat.goal_ratio_str()}}</td>
                         <td>{{stat.elo_rating_str()}}</td>
                     </tr>
                 {% else %}
                 {% endfor %}
                 </tbody>
-
 
             </table>
         </div>
@@ -166,8 +173,10 @@
                     <td>Wins</td>
                     <td>Draws</td>
                     <td>Losses</td>
+                    <td>Win %</td>
                     <td>Goals+</td>
                     <td>Goals-</td>
+                    <td>Goal Ratio</td>
                     <td>Elo</td>
                 </thead>
 
@@ -178,14 +187,15 @@
                         <td>{{stat.wins}}</td>
                         <td>{{stat.draws}}</td>
                         <td>{{stat.losses}}</td>
+                        <td>{{stat.perc_win_str()}}</td>
                         <td>{{stat.goals_pro}}</td>
                         <td>{{stat.goals_against}}</td>
+                        <td>{{stat.goal_ratio_str()}}</td>
                         <td>{{stat.elo_rating_str()}}</td>
                     </tr>
                 {% else %}
                 {% endfor %}
                 </tbody>
-
             </table>
         </div>
 

@@ -131,6 +131,26 @@ class Stats:
 
         self.timestamp = timestamp
 
+    def perc_win(self):
+        if (self.wins+self.losses+self.draws) == 0:
+            return 0.0
+        return (self.wins / float(self.wins+self.losses+self.draws))
+
+    def perc_win_str(self):
+        if (self.wins+self.losses+self.draws) == 0:
+            return "--"
+        return "%2.0f%%"%(100*self.perc_win())
+
+    def goal_ratio(self):
+        if (self.goals_pro + self.goals_against) == 0:
+            return 0.0
+        return (self.goals_pro - self.goals_against)/float(self.goals_pro + self.goals_against)
+
+    def goal_ratio_str(self):
+        if (self.goals_pro + self.goals_against) == 0:
+            return "--"
+        return "%2.0f%%"%(100*self.goal_ratio())
+
     def elo_rating_str(self):
         return "%2.0f"%self.elo_rating
 
