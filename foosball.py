@@ -99,7 +99,8 @@ def player_name_edit(name):
 @app.route('/teams')
 def teams_get():
     all_teams = db.get_all_teams()
-    return render_template('teams.html', teams=all_teams)
+    sorted_teams = sorted(all_teams, key=lambda team: -team.team_stats.elo_rating)
+    return render_template('teams.html', teams=sorted_teams)
 
 
 @app.route('/teams/<team_id>', methods=['GET'])
@@ -188,8 +189,8 @@ def is_game_on():
     else:
         return "No"
 
-@app.route('/stats', methods=['GET'])
-def stats_get():
+@app.route('/rankings', methods=['GET'])
+def rankings_get():
     all_players = db.get_all_players()
 
     players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating, reverse=True)))
@@ -200,6 +201,20 @@ def stats_get():
     all_teams = db.get_all_teams()
     team_ranking = list(enumerate(sorted(all_teams, key=lambda t: t.team_stats.elo_rating, reverse=True)))
     return render_template('stats_page.html', players_ranking=players_ranking, attack_ranking=attack_ranking, defense_ranking=defense_ranking, team_ranking=team_ranking, win_perc_ranking=win_perc_ranking)
+
+@app.route('/elo', methods=['GET'])
+def elo_get():
+    all_players = db.get_all_players()
+
+    players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating, reverse=True)))
+    attack_ranking = list(enumerate(sorted(all_players, key=lambda p: p.attack_stats.elo_rating, reverse=True)))
+    defense_ranking = list(enumerate(sorted(all_players, key=lambda p: p.defense_stats.elo_rating, reverse=True)))
+    win_perc_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.perc_win(), reverse=True)))
+
+    all_teams = db.get_all_teams()
+    team_ranking = list(enumerate(sorted(all_teams, key=lambda t: t.team_stats.elo_rating, reverse=True)))
+    return render_template('elo_page.html', players_ranking=players_ranking, attack_ranking=attack_ranking, defense_ranking=defense_ranking, team_ranking=team_ranking, win_perc_ranking=win_perc_ranking)
+
 
 
 
