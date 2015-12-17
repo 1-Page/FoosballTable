@@ -482,7 +482,7 @@ class DBAccess:
         self.update_team_stats(team_id=game.left_team.team_id, team_stats_id=new_left_team_stats.stats_id)
 
         new_right_team_stats = self.increment_stats(team_id=game.right_team.team_id, i_elo_rating=i_elo_right_team, **right_dict_goals_increment)
-        self.update_team_stats(team_id=game.left_team.team_id, team_stats_id=new_right_team_stats.stats_id)
+        self.update_team_stats(team_id=game.right_team.team_id, team_stats_id=new_right_team_stats.stats_id)
 
 
         new_left_attack_attack_stats = self.increment_stats(attack_player_id=game.left_team.attack_player.player_id, i_elo_rating=i_elo_left_players_pos, **left_dict_goals_increment)
@@ -554,4 +554,5 @@ class DBAccess:
         games = reversed(self.get_all_games())
         for game in games:
             self.add_stats_game(game=game)
+
 

@@ -3,27 +3,21 @@
 
 {% block content %}
 
-  <div class="container">
+  <div class="container-fluid">
   {% for team in teams %}
-        <div class="col-xs-4 h2">
+        <div class="col-xs-2 h5 text-center">
             <a href="{{ url_for('teams_name_get', team_id=team.team_id) }}">
-                {{ team.summary() }} <br/>
+                {{ team.summary() }} ({{ team.team_stats.elo_rating_str()}}) <br/>
 
                 <div class="thumbnail col-md-6 col-xs-6">
                     <!--<a href="{{ url_for('players_name_get', name=team.defense_player.name) }}">-->
                         <img src="{{ team.defense_player.photo }}" class="player" alt="{{ team.defense_player.name|safe }}" />
-                        <div class="caption post-content h4 text-center">
-                            Defense: {{ team.defense_player.name }}
-                        </div>
                     <!--</a>-->
                 </div>
 
                 <div class="thumbnail col-md-6 col-xs-6">
                     <!--<a href="{{ url_for('players_name_get', name=team.attack_player.name) }}">-->
                         <img src="{{ team.attack_player.photo }}" class="player" alt="{{ team.attack_player.name|safe }}" />
-                        <div class="caption post-content h4 text-center">
-                            Attack: {{ team.attack_player.name }}
-                        </div>
                     <!--</a>-->
                 </div>
             </a>

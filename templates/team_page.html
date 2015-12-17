@@ -19,7 +19,7 @@
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
           ['Timestamp', 'Elo-Rating'],
-        {% for stat in team_stats %}
+        {% for stat in team_stats|reverse %}
           ['{{ stat.timestamp }}', {{ stat.elo_rating_str() }}],
         {% endfor %}
         ]);
