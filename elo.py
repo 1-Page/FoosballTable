@@ -1,6 +1,6 @@
 import math
 
-INITIAL_RATING = 250
+INITIAL_RATING = 1000
 K = 50.0 # Rating coefficient (defined by Bonzini USA to be 50)
 F = 100.0 # Weight factor
 
