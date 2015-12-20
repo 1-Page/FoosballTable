@@ -58,8 +58,8 @@ def players_get_post():
 
         db.create_player(name=name, photo=photoUrl)
 
-    all_players = db.get_all_players()
-
+    #all_players = db.get_all_players()
+    all_players = db.get_visible_players()
 
     return render_template('players.html', players=all_players)
 
@@ -82,6 +82,10 @@ def player_name_edit(name):
 
 
     new_name = request.form['name']
+    hidden = request.form['hidden'] == "yes"
+
+    db.hide_player(player_name=name, hidden=hidden)
+
     photoUrl = player.photo
     if 'photo' in request.files:
         fileStorage = request.files['photo']
@@ -112,7 +116,8 @@ def teams_name_get(team_id):
 
 @app.route('/games', methods=['GET', 'POST'])
 def games_get_post():
-    all_players = db.get_all_players()
+    #all_players = db.get_all_players()
+    all_players = db.get_visible_players()
 
     if request.method == 'POST':
         left_defense_player_name = request.form['left_defense_player_name']
@@ -136,7 +141,8 @@ def games_get_post():
 
 @app.route('/games/<timestamp>', methods=['GET', 'PUT', 'DELETE', 'POST'])
 def games_get(timestamp):
-    all_players = db.get_all_players()
+    #all_players = db.get_all_players()
+    all_players = db.get_visible_players()
     game = db.get_game_by_timestamp(timestamp)
     return render_template('game_page.html', game=game, players=all_players)
 
@@ -191,7 +197,8 @@ def is_game_on():
 
 @app.route('/rankings', methods=['GET'])
 def rankings_get():
-    all_players = db.get_all_players()
+    #all_players = db.get_all_players()
+    all_players = db.get_visible_players()
 
     players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating, reverse=True)))
     attack_ranking = list(enumerate(sorted(all_players, key=lambda p: p.attack_stats.elo_rating, reverse=True)))
@@ -204,7 +211,8 @@ def rankings_get():
 
 @app.route('/elo', methods=['GET'])
 def elo_get():
-    all_players = db.get_all_players()
+    #all_players = db.get_all_players()
+    all_players = db.get_visible_players()
 
     players_ranking = list(enumerate(sorted(all_players, key=lambda p: p.player_stats.elo_rating, reverse=True)))
     attack_ranking = list(enumerate(sorted(all_players, key=lambda p: p.attack_stats.elo_rating, reverse=True)))
@@ -226,13 +234,6 @@ def redo_stats():
 
 photos = UploadSet('photos', IMAGES)
 
-@app.route('/photo/<id>')
-def show(id):
-    photo = Photo.load(id)
-    if photo is None:
-        abort(404)
-    url = photos.url(photo.filename)
-    return render_template('show.html', url=url, photo=photo)
 
 
 if __name__ == '__main__':

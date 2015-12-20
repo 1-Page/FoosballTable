@@ -35,6 +35,36 @@ class DBAccess:
                                                 elo_rating NUMBER,
                                                 timestamp TEXT)
             """)
+
+        cur.execute("""CREATE TABLE IF NOT EXISTS hidden_players (player_id INTEGER)""")
+
+        self.con.commit()
+
+    def get_visible_players(self):
+        return self.get_hidden_players(hidden=False)
+
+    def get_hidden_players(self, hidden=True):
+        cur = self.con.cursor()
+        sql = """SELECT player_id, name, photo, player_stats_id, attack_stats_id, defense_stats_id FROM players
+                 WHERE player_id {} in (SELECT player_id from hidden_players)""".format("not" if not hidden else "")
+        cur.execute(sql)
+        all_players = list(cur.fetchall())
+        return [Player(player_id=player_id, name=name, photo=photo, player_stats=self.get_stats(player_stats_id), attack_stats=self.get_stats(attack_stats_id), defense_stats=self.get_stats(defense_stats_id))
+                        for player_id, name, photo, player_stats_id, attack_stats_id, defense_stats_id in all_players]
+
+
+    def hide_player(self, player_name, hidden):
+
+        player = self.get_player_by_name(name=player_name)
+
+        cur = self.con.cursor()
+        cur.execute("SELECT player_id FROM hidden_players WHERE player_id = :player_id", dict(player_id=player.player_id))
+        player_exists = cur.fetchone()
+        if player_exists and not hidden:
+            cur.execute("DELETE FROM hidden_players WHERE player_id = :player_id", dict(player_id=player.player_id))
+        elif not player_exists and hidden:
+            cur.execute("INSERT INTO hidden_players(player_id) VALUES(:player_id)", dict(player_id=player.player_id))
+
         self.con.commit()
 
 
@@ -113,6 +143,20 @@ class DBAccess:
             player.photo = new_player_photo
             return player
 
+    def edit_player(self, player_name, new_player_name, new_player_photo):
+        cur = self.con.cursor()
+
+        player = self.get_player_by_name(name=player_name)
+        if not player:
+            return None
+        else:
+            player_dict = dict(name=new_player_name, photo=new_player_photo, player_id=player.player_id)
+            cur.execute("UPDATE players SET name = :name, photo = :photo WHERE player_id = :player_id", player_dict)
+            self.con.commit()
+
+            player.name = new_player_name
+            player.photo = new_player_photo
+            return player
 
 
     def get_all_teams(self):

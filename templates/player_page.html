@@ -65,9 +65,14 @@
                     </div>
                     <div class="form-group">
                         <label for="photoInput">Photo</label>
-                        <input type="file" id="photoInput" name=photo>
+                        <input type="file" id="photoInput" name=photo><br/>
+                        <select class="c-select" name="hidden">
+                            <option value="no" selected>Show</option>
+                            <option value="yes" >Hide</option>
+                        </select>
+                        <label for="playerHidden">player from select</label>
                     </div>
-                    <button type="submit" class="btn btn-success">Edit</button>
+                    <button type="submit" class="btn btn-success">Modify</button>
                 </form>
             </div>
         </div>
