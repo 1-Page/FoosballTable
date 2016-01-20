@@ -234,7 +234,24 @@ def redo_stats():
 
 photos = UploadSet('photos', IMAGES)
 
+def flask_main():
+    app.run(debug=True, host='0.0.0.0', threaded=False, port=7008)
+
+def tornado_main():
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+
+    try:
+        http_server = HTTPServer(WSGIContainer(app))
+        http_server.listen(int(7008))
+        IOLoop.instance().start()
+    except Exception, e:
+        print "Application crashed...", str(e)
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', threaded=False, port=7008)
+    tornado_main()
+
+
+
