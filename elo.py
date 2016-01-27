@@ -14,5 +14,17 @@ def rating_increment(score_perc, diff_ratings):
     return K * (score_perc - wining_expectancy(diff_ratings))
 
 
+def predicted_score(diff, MAX_SCORE):
+    expected = wining_expectancy(diff)
+    if expected > 0.5:
+        predicted_right_score = int(round(MAX_SCORE * ((1.0-expected) / expected)))
+        predicted_left_score = MAX_SCORE
+    else:
+        predicted_right_score = MAX_SCORE
+        predicted_left_score = int(round(MAX_SCORE * (expected / (1.0-expected))))
+
+    return predicted_left_score, predicted_right_score
+
+
 
 

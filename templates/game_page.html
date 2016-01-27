@@ -84,7 +84,11 @@
                     <div class="time">
                         Time left: <span id="time_left">{{ game.time_left_string() }}</span>
                         <br/>
-                        <span class="h4">Predicted Score:<br/>{{ game.predicted_score() }}</span>
+                        <div><span class="h3">Predicted Scores</span><br/>
+                            <span class="h5">Player: {{ game.predicted_player_score() }}</span><br/>
+                            <span class="h5">Position: {{ game.predicted_position_score() }}</span><br/>
+                            <span class="h5">Team: {{ game.predicted_team_score() }}</span>
+                        </div>
                     </div>
 
                     <div class="btn btn-lg btn-success center-block end_game_btn">
