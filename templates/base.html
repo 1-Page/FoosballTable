@@ -1,5 +1,5 @@
 {%- extends "bootstrap/base.html" %}
-{% block title %}1-Page Foosball Table{% endblock %}
+{% block title %}Foosball Table{% endblock %}
 {% import "bootstrap/fixes.html" as fixes %}
 
 {% block head %}
@@ -24,9 +24,6 @@
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="http://www.1-page.com">
-            <img alt="Brand" class="container img-responsive" src="{{url_for('static', filename='img/1-page-f.png')}}">
-          </a>
         </div>
 
         <p class="navbar-text"><a href="{{ url_for('games_get_post') }}">Games</a></p>
